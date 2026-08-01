@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Transfer</title>
-    <!-- Ethers.js loaded via module import in app.js -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         :root { --blue-primary: #1E4DFF; --btn-purple: #9DA3FF; --bg-pill: #F4F4F6; --text-label: #646464; --border-light: #EFEFEF; }
@@ -23,7 +22,9 @@
         .clear-btn { width: 22px; height: 22px; background: #5F6368; border-radius: 50%; display: none; align-items: center; justify-content: center; cursor: pointer; margin-right: 5px; }
         .clear-btn::after { content: '×'; color: #FFFFFF; font-size: 18px; font-weight: 600; margin-top: -2px; }
         .icon-svg { width: 22px; height: 22px; fill: none; stroke: var(--blue-primary); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-        .network-pill { display: inline-flex; align-items: center; background-color: var(--bg-pill); padding: 6px 12px; border-radius: 20px; gap: 8px; }
+        .network-pill { display: inline-flex; align-items: center; background-color: var(--bg-pill); padding: 6px 12px; border-radius: 20px; gap: 8px; width: 100%; justify-content: space-between; }
+        .network-pill-left { display: flex; align-items: center; gap: 8px; }
+        .network-select { border: none; background: transparent; font-size: 14px; font-weight: 600; color: #555; outline: none; cursor: pointer; padding: 4px; }
         .bnb-logo-image { width: 20px; height: 20px; object-fit: contain; }
         .network-text { font-size: 14px; color: #555; font-weight: 600; }
         .footer { padding: 20px; }
@@ -31,6 +32,7 @@
         .next-btn.enabled { background-color: var(--blue-primary); }
         .next-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .approx-txt { font-size: 13px; color: #9FA3A9; margin-top: 10px; font-weight: 500; }
+        .network-arrow { width: 12px; height: 12px; }
     </style>
 </head>
 <body>
@@ -52,9 +54,13 @@
         <div class="section">
             <label class="label">Destination network</label>
             <div class="network-pill">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23F0B90B'%3E%3Ccircle cx='12' cy='12' r='12'/%3E%3Ctext x='12' y='18' font-size='14' text-anchor='middle' fill='white' font-weight='bold'%3EBNB%3C/text%3E%3C/svg%3E" class="bnb-logo-image" alt="BNB">
-                <span class="network-text">BNB Smart Chain (BEP20)</span>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9FA3A9" stroke-width="4"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                <div class="network-pill-left">
+                    <span id="networkIcon">🟡</span>
+                    <select class="network-select" id="networkSelect">
+                        <!-- Options populated by JavaScript -->
+                    </select>
+                </div>
+                <svg class="network-arrow" viewBox="0 0 24 24" fill="none" stroke="#9FA3A9" stroke-width="4"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </div>
         </div>
 
@@ -64,7 +70,7 @@
                 <input type="number" id="amountInput" placeholder="0" inputmode="decimal" step="0.01">
                 <div class="actions">
                     <div class="clear-btn" id="clearAmount"></div>
-                    <span style="color: #616469; font-size: 14px; font-weight: 500;">USDT</span>
+                    <span style="color: #616469; font-size: 14px; font-weight: 500;" id="usdtLabel">USDT</span>
                     <span class="blue-text" id="maxBtn">Max</span>
                 </div>
             </div>
