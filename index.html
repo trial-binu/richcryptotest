@@ -5,211 +5,194 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Transfer</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        :root { 
-            --blue-primary: #1E4DFF; 
-            --btn-purple: #9DA3FF; 
-            --bg-pill: #F4F4F6; 
-            --text-label: #646464; 
-            --border-light: #EFEFEF; 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-            font-family: 'Inter', sans-serif; 
-            -webkit-tap-highlight-color: transparent; 
+        
+        body {
+            background: #ffffff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        body, html { 
-            height: 100%; 
-            background-color: #fff; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
+        
+        .container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
         }
-        .content { 
-            flex: 1; 
-            padding: 10px 20px; 
-            overflow-y: auto; 
+        
+        .section {
+            margin-bottom: 20px;
         }
-        .section { 
-            margin-top: 15px; 
-        }
-        .label { 
-            font-size: 14.5px; 
-            color: var(--text-label); 
-            font-weight: 600; 
-            margin-bottom: 10px; 
-            display: block; 
-        }
-        .input-group { 
-            display: flex; 
-            align-items: center; 
-            border: 1.8px solid var(--border-light); 
-            border-radius: 14px; 
-            height: 58px; 
-            padding: 0 16px; 
-            transition: 0.2s; 
-            position: relative; 
-            background: #fff;
-        }
-        .input-group.active { 
-            border-color: var(--blue-primary); 
-            border-width: 2px; 
-        }
-        .input-group input { 
-            flex: 1; 
-            border: none; 
-            outline: none; 
-            font-size: 16px; 
-            font-weight: 500; 
-            color: #000; 
-            background: transparent; 
-            width: 100%; 
-            min-width: 0;
-        }
-        #recipientInput { 
-            text-align: left; 
-            padding-right: 8px; 
+        
+        .label {
             font-size: 14px;
+            font-weight: 600;
+            color: #646464;
+            margin-bottom: 8px;
+            display: block;
         }
-        #amountInput { 
-            text-align: left; 
-        }
-        .actions { 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            flex-shrink: 0;
-        }
-        .blue-text { 
-            color: var(--blue-primary); 
-            font-weight: 700; 
-            font-size: 15px; 
-            cursor: pointer; 
-            white-space: nowrap;
-        }
-        .clear-btn { 
-            width: 22px; 
-            height: 22px; 
-            background: #5F6368; 
-            border-radius: 50%; 
-            display: none; 
-            align-items: center; 
-            justify-content: center; 
-            cursor: pointer; 
-            margin-right: 5px; 
-            flex-shrink: 0;
-        }
-        .clear-btn.visible { 
-            display: flex; 
-        }
-        .clear-btn::after { 
-            content: '×'; 
-            color: #FFFFFF; 
-            font-size: 18px; 
-            font-weight: 600; 
-            margin-top: -2px; 
-        }
-        .icon-svg { 
-            width: 22px; 
-            height: 22px; 
-            fill: none; 
-            stroke: var(--blue-primary); 
-            stroke-width: 2.5; 
-            stroke-linecap: round; 
-            stroke-linejoin: round; 
-            flex-shrink: 0;
-            cursor: pointer;
-        }
-        .network-pill { 
-            display: flex; 
-            align-items: center; 
-            background-color: var(--bg-pill); 
-            padding: 8px 14px; 
-            border-radius: 20px; 
-            gap: 8px; 
-            width: 100%; 
-            justify-content: space-between; 
-            min-height: 48px;
-        }
-        .network-pill-left { 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            flex: 1;
-            min-width: 0;
-        }
-        .network-select { 
-            border: none; 
-            background: transparent; 
-            font-size: 14px; 
-            font-weight: 600; 
-            color: #333; 
-            outline: none; 
-            cursor: pointer; 
-            padding: 4px 0;
-            flex: 1;
-            min-width: 0;
-            max-width: 220px;
-        }
-        .network-icon-text { 
-            font-size: 20px; 
-            line-height: 1;
-            flex-shrink: 0;
-        }
-        .network-arrow { 
-            width: 14px; 
-            height: 14px; 
-            flex-shrink: 0;
-        }
-        .footer { 
-            padding: 16px 20px 20px; 
-            background: #fff;
-            border-top: 1px solid var(--border-light);
-        }
-        .next-btn { 
-            width: 100%; 
-            height: 56px; 
-            background-color: var(--btn-purple); 
-            color: #fff; 
-            border: none; 
-            border-radius: 30px; 
-            font-size: 17px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            transition: 0.3s; 
-        }
-        .next-btn.enabled { 
-            background-color: var(--blue-primary); 
-        }
-        .next-btn:disabled { 
-            opacity: 0.6; 
-            cursor: not-allowed; 
-        }
-        .approx-txt { 
-            font-size: 13px; 
-            color: #9FA3A9; 
-            margin-top: 10px; 
-            font-weight: 500; 
-        }
-        .token-label { 
-            color: #616469; 
-            font-size: 14px; 
-            font-weight: 500; 
-            flex-shrink: 0;
-        }
-        .amount-actions {
+        
+        .input-group {
             display: flex;
             align-items: center;
-            gap: 8px;
+            border: 2px solid #EFEFEF;
+            border-radius: 14px;
+            padding: 0 16px;
+            height: 56px;
+            background: white;
+            transition: border-color 0.2s;
+        }
+        
+        .input-group.active {
+            border-color: #1E4DFF;
+        }
+        
+        .input-group input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            background: transparent;
+            color: #000;
+            min-width: 0;
+        }
+        
+        .input-group input::placeholder {
+            color: #999;
+        }
+        
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             flex-shrink: 0;
         }
-        /* Hide number input arrows */
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
+        
+        .blue-text {
+            color: #1E4DFF;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .clear-btn {
+            width: 22px;
+            height: 22px;
+            background: #999;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        
+        .clear-btn.show {
+            display: flex;
+        }
+        
+        .clear-btn::after {
+            content: '×';
+            color: white;
+            font-size: 18px;
+            font-weight: 300;
+            margin-top: -2px;
+        }
+        
+        .network-pill {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #F4F4F6;
+            border-radius: 20px;
+            padding: 10px 16px;
+            min-height: 48px;
+        }
+        
+        .network-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+        
+        .network-icon {
+            font-size: 22px;
+        }
+        
+        .network-select {
+            border: none;
+            background: transparent;
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            outline: none;
+            cursor: pointer;
+            flex: 1;
+            padding: 4px 0;
+        }
+        
+        .network-arrow {
+            color: #999;
+            font-size: 18px;
+        }
+        
+        .token-label {
+            color: #616469;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .approx-text {
+            font-size: 13px;
+            color: #9FA3A9;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+        
+        .footer {
+            padding: 16px 20px 20px;
+            border-top: 1px solid #EFEFEF;
+            background: white;
+        }
+        
+        .next-btn {
+            width: 100%;
+            height: 56px;
+            background: #9DA3FF;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .next-btn.enabled {
+            background: #1E4DFF;
+        }
+        
+        .next-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .next-btn:not(:disabled):hover {
+            opacity: 0.9;
+        }
+        
+        /* Fix for number input arrows */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
         input[type=number] {
             -moz-appearance: textfield;
@@ -218,17 +201,25 @@
 </head>
 <body>
 
-    <div class="content">
+    <div class="container">
         <!-- Address Section -->
-        <div class="section" style="margin-top: 20px;">
+        <div class="section">
             <label class="label">Address or Domain Name</label>
             <div class="input-group" id="addrGroup">
-                <input type="text" id="recipientInput" placeholder="Enter address" value="0x402b1a4FD55Ca191a22039162173A3b4E5a7C9e7">
+                <input type="text" id="recipientInput" placeholder="Enter address">
                 <div class="actions">
                     <div class="clear-btn" id="clearAddr"></div>
                     <span class="blue-text" id="pasteBtn">Paste</span>
-                    <svg class="icon-svg" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="2" /><line x1="3" y1="8" x2="6" y2="8" /><line x1="3" y1="12" x2="6" y2="12" /><line x1="3" y1="16" x2="6" y2="16" /></svg>
-                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1-1h-3M8 20H5a1 1 0 0 1-1-1v-3" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E4DFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="5" y="4" width="14" height="16" rx="2"/>
+                        <line x1="3" y1="8" x2="6" y2="8"/>
+                        <line x1="3" y1="12" x2="6" y2="12"/>
+                        <line x1="3" y1="16" x2="6" y2="16"/>
+                    </svg>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E4DFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
                 </div>
             </div>
         </div>
@@ -237,15 +228,13 @@
         <div class="section">
             <label class="label">Destination network</label>
             <div class="network-pill">
-                <div class="network-pill-left">
-                    <span class="network-icon-text" id="networkIcon">🟡</span>
+                <div class="network-left">
+                    <span class="network-icon" id="networkIcon">🟡</span>
                     <select class="network-select" id="networkSelect">
-                        <!-- Options populated by JavaScript -->
+                        <!-- Will be populated by JavaScript -->
                     </select>
                 </div>
-                <svg class="network-arrow" viewBox="0 0 24 24" fill="none" stroke="#9FA3A9" stroke-width="3">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
+                <span class="network-arrow">▼</span>
             </div>
         </div>
 
@@ -253,14 +242,14 @@
         <div class="section">
             <label class="label">Amount</label>
             <div class="input-group" id="amountGroup">
-                <input type="number" id="amountInput" placeholder="0.00" inputmode="decimal" step="0.01">
-                <div class="amount-actions">
+                <input type="number" id="amountInput" placeholder="0.00" step="0.01">
+                <div class="actions">
                     <div class="clear-btn" id="clearAmount"></div>
                     <span class="token-label" id="usdtLabel">USDT</span>
                     <span class="blue-text" id="maxBtn">Max</span>
                 </div>
             </div>
-            <div class="approx-txt">≈ $<span id="usdLabel">0.00</span></div>
+            <div class="approx-text">≈ $<span id="usdLabel">0.00</span></div>
         </div>
     </div>
 
