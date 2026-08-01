@@ -120,10 +120,12 @@
             align-items: center;
             gap: 10px;
             flex: 1;
+            min-width: 0;
         }
         
         .network-icon {
             font-size: 22px;
+            flex-shrink: 0;
         }
         
         .network-select {
@@ -136,17 +138,21 @@
             cursor: pointer;
             flex: 1;
             padding: 4px 0;
+            min-width: 0;
+            max-width: 200px;
         }
         
         .network-arrow {
             color: #999;
-            font-size: 18px;
+            font-size: 12px;
+            flex-shrink: 0;
         }
         
         .token-label {
             color: #616469;
             font-size: 14px;
             font-weight: 500;
+            flex-shrink: 0;
         }
         
         .approx-text {
